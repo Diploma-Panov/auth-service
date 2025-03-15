@@ -59,7 +59,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build image
-        run: cd docker/ecs && docker build -t diploma-auth-service ../..
+        run: docker build -t diploma-auth-service -f ./docker/ecs/Dockerfile .
 
       - name: Tag image
         run: docker tag diploma-auth-service:latest 533267200006.dkr.ecr.eu-central-1.amazonaws.com/diploma-auth-service:dev.latest
@@ -78,7 +78,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build image
-        run: cd docker/ecs && docker build -t diploma-auth-service ../..
+        run: docker build -t diploma-auth-service -f ./docker/ecs/Dockerfile .
 
       - name: Tag image
         run: docker tag diploma-auth-service:latest 533267200006.dkr.ecr.eu-central-1.amazonaws.com/diploma-auth-service:prod.latest
