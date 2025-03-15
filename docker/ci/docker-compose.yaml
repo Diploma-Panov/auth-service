@@ -5,6 +5,8 @@ services:
     environment:
       POSTGRES_USER: 'ci-user'
       POSTGRES_PASSWORD: 'qwerty'
+    ports:
+      - '5432:5432'
 
   auth-service:
     container_name: auth-service
