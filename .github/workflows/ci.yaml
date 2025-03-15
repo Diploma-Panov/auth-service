@@ -36,6 +36,9 @@ jobs:
       - name: Run build environment
         run: cd docker/ci && ./pull.sh && ./env.sh
 
+      - name: Test containers
+        run: docker ps
+
       - name: Clear project
         run: mvn clean
 
