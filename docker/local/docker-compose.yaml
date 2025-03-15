@@ -1,0 +1,14 @@
+services:
+  auth-postgres:
+    container_name: auth-postgres
+    image: postgres:16.8-alpine3.20
+    environment:
+      POSTGRES_USER: 'local-user'
+      POSTGRES_PASSWORD: 'qwerty'
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

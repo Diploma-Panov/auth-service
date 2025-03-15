@@ -1,0 +1,21 @@
+services:
+  auth-postgres:
+    container_name: auth-postgres
+    image: postgres:16.8-alpine3.20
+    environment:
+      POSTGRES_USER: 'ci-user'
+      POSTGRES_PASSWORD: 'qwerty'
+    ports:
+      - '5432:5432'
+
+  auth-service:
+    container_name: auth-service
+    build:
+      dockerfile: docker/ecs/Dockerfile
+      context: ../..
+    environment:
+      SPRING_PROFILES_ACTIVE: 'ci'
+    ports:
+      - '8181:8181'
+    depends_on:
+      - auth-postgres
