@@ -1,17 +1,27 @@
-
-name: Verify the
-
 on:
   push:
     branches:
+      - dev
       - master
   pull_request:
     branches:
       - dev
       - master
 
+workflow_dispatch:
+  inputs:
+    runDevImage:
+      description: 'Push dev image to ECR?'
+      required: true
+      default: 'false'
+    runProdImage:
+      description: 'Push prod image to ECR?'
+      required: true
+      default: 'false'
+
 jobs:
   build-test:
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout Branch
@@ -25,7 +35,7 @@ jobs:
           cache: maven
 
       - name: Run build environment
-        run: cd docker/local && ./pull.sh && ./env.sh
+        run: cd docker/ci && ./pull.sh && ./env.sh
 
       - name: Clear project
         run: mvn clean
@@ -35,3 +45,44 @@ jobs:
 
       - name: Run tests
         run: mvn test
+
+      - name: Cleanup
+        run: cd docker/ci && ./stop.sh
+
+  push-dev-image-to-ecr:
+    if: github.event.inputs.runDevImage == 'true'
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout Branch
+        uses: actions/checkout@v3
+
+      - name: Build image
+        run: cd docker/ecs && docker build -t diploma-auth-service ../..
+
+      - name: Tag image
+        run: docker tag diploma-auth-service:latest 533267200006.dkr.ecr.eu-central-1.amazonaws.com/diploma-auth-service:dev.latest
+
+      - name: Amazon ECR "Login" Action for GitHub Actions
+        uses: aws-actions/amazon-ecr-login@v2.0.1
+
+      - name: Push image
+        run: docker push 533267200006.dkr.ecr.eu-central-1.amazonaws.com/diploma-auth-service:dev.latest
+
+  push-prod-image-to-ecr:
+    if: github.event.inputs.runProdImage == 'true'
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout Branch
+        uses: actions/checkout@v3
+
+      - name: Build image
+        run: cd docker/ecs && docker build -t diploma-auth-service ../..
+
+      - name: Tag image
+        run: docker tag diploma-auth-service:latest 533267200006.dkr.ecr.eu-central-1.amazonaws.com/diploma-auth-service:prod.latest
+
+      - name: Amazon ECR "Login" Action for GitHub Actions
+        uses: aws-actions/amazon-ecr-login@v2.0.1
+
+      - name: Push image
+        run: docker push 533267200006.dkr.ecr.eu-central-1.amazonaws.com/diploma-auth-service:prod.latest
