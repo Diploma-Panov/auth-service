@@ -40,7 +40,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: Amazon ECR "Login" Action for GitHub Actions
+      - name: Amazon ECR Login
         uses: aws-actions/amazon-ecr-login@v2.0.1
 
       - name: Run build environment
@@ -81,7 +81,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: Amazon ECR "Login" Action for GitHub Actions
+      - name: Amazon ECR Login
         uses: aws-actions/amazon-ecr-login@v2.0.1
 
       - name: Push image
@@ -107,7 +107,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: Amazon ECR "Login" Action for GitHub Actions
+      - name: Amazon ECR Login
         uses: aws-actions/amazon-ecr-login@v2.0.1
 
       - name: Push image
