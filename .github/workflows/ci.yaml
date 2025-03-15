@@ -1,4 +1,14 @@
 on:
+  workflow_dispatch:
+    inputs:
+      runDevImage:
+        description: 'Push dev image to ECR?'
+        required: true
+        default: 'false'
+      runProdImage:
+        description: 'Push prod image to ECR?'
+        required: true
+        default: 'false'
   push:
     branches:
       - dev
@@ -7,17 +17,6 @@ on:
     branches:
       - dev
       - master
-
-workflow_dispatch:
-  inputs:
-    runDevImage:
-      description: 'Push dev image to ECR?'
-      required: true
-      default: 'false'
-    runProdImage:
-      description: 'Push prod image to ECR?'
-      required: true
-      default: 'false'
 
 jobs:
   build-test:
