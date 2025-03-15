@@ -56,7 +56,7 @@ jobs:
         run: mvn compile
 
       - name: Run tests
-        run: mvn test -Dspring.profiles.active=ci
+        run: mvn test -Dspring.profiles.active=testci
 
       - name: Cleanup
         run: cd docker/ci && ./stop.sh
