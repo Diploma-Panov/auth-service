@@ -10,9 +10,7 @@ services:
 
   auth-service:
     container_name: auth-service
-    build:
-      dockerfile: docker/ecs/Dockerfile
-      context: ../..
+    image: 533267200006.dkr.ecr.eu-central-1.amazonaws.com/diploma-auth-service:dev.latest
     environment:
       SPRING_PROFILES_ACTIVE: 'ci'
     ports:
