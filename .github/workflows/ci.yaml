@@ -77,7 +77,7 @@ jobs:
       - name: Compile the project
         run: |
           cat ~/.m2/settings.xml
-          mvn compile
+          mvn -s ~/.m2/settings.xml compile
 
       - name: Run tests
         run: mvn test -Dspring.profiles.active=testci
