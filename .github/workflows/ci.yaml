@@ -62,17 +62,17 @@ jobs:
 
       - name: Login to CodeArtifact
         run: |
-          aws --version \
-            export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain mpanov --domain-owner 533267200006 --query authorizationToken --output text`
+          aws --version
+          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain mpanov --domain-owner 533267200006 --query authorizationToken --output text`
 
       - name: Clear project
         run: mvn clean
 
       - name: Compile the project
         run: |
-          echo ${CODEARTIFACT_AUTH_TOKEN} \ 
-            cat ~/.m2/settings.xml \
-            mvn compile
+          echo ${CODEARTIFACT_AUTH_TOKEN}
+          cat ~/.m2/settings.xml
+          mvn compile
 
       - name: Run tests
         run: mvn test -Dspring.profiles.active=testci
