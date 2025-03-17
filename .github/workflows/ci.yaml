@@ -66,16 +66,16 @@ jobs:
           CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain mpanov --domain-owner 533267200006 --query authorizationToken --output text)
           echo "CODEARTIFACT_AUTH_TOKEN=${CODEARTIFACT_AUTH_TOKEN}" >> $GITHUB_ENV
 
-      - name: Prepare settings.xml with token
+      - name: Prepare settings.xml with token using sed
         run: |
-          envsubst < ~/.m2/settings.xml.template > ~/.m2/settings.xml
+          sed -e "s|\${env.CODEARTIFACT_AUTH_TOKEN}|${CODEARTIFACT_AUTH_TOKEN}|g" ~/.m2/settings.xml.template > ~/.m2/settings.xml
+          cat ~/.m2/settings.xml
 
       - name: Clear project
         run: mvn clean
 
       - name: Compile the project
         run: |
-          echo ${CODEARTIFACT_AUTH_TOKEN}
           cat ~/.m2/settings.xml
           mvn compile
 
