@@ -52,15 +52,23 @@ jobs:
       - name: Prepare settings.xml file
         run: cp docker/ci/settings.xml.example ~/.m2/settings.xml
 
-#      - name: Login to CodeArtifact
-#        run:
+      - name: Install AWS CLI
+        id: install-aws-cli
+        uses: unfor19/install-aws-cli-action@v1
+        with:
+          version: 2
+          verbose: false
+          arch: amd64
+
+      - name: Login to CodeArtifact
+        run: aws --version && \
+              export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain mpanov --domain-owner 533267200006 --query authorizationToken --output text`
 
       - name: Clear project
         run: mvn clean
 
       - name: Compile the project
-        run: export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain mpanov --domain-owner 533267200006 --query authorizationToken --output text` \
-              echo ${CODEARTIFACT_AUTH_TOKEN} && \ 
+        run: echo ${CODEARTIFACT_AUTH_TOKEN} && \ 
               cat ~/.m2/settings.xml && \
               mvn compile
 
