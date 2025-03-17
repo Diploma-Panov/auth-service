@@ -49,6 +49,12 @@ jobs:
       - name: Test containers
         run: docker ps
 
+      - name: Prepare settings.xml file
+        run: mkdir ~/.m2 && cp docker/ci/settings.xml.example ~/.m2/settings.xml
+
+      - name: Login to CodeArtifact
+        run: export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain mpanov --domain-owner 533267200006 --query authorizationToken --output text`
+
       - name: Clear project
         run: mvn clean
 

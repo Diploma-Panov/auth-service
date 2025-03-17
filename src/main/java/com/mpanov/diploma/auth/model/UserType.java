@@ -1,10 +1,10 @@
 package com.mpanov.diploma.auth.model;
 
-public enum UserRole {
-    USER, ADMIN;
+public enum UserType {
+    USER,
+    ADMIN;
 
-    @Override
-    public String toString() {
+    public String getAuthority() {
         return "ROLE_" + this.name();
     }
 }
