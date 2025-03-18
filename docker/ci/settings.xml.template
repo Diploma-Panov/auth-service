@@ -3,7 +3,9 @@
         <server>
             <id>mpanov-diploma-java-utils</id>
             <username>aws</username>
-	    <password>${env.CODEARTIFACT_AUTH_TOKEN}</password>
+	        <password>
+	            ${env.CODEARTIFACT_AUTH_TOKEN}
+	        </password>
         </server>
     </servers>
 </settings>
