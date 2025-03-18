@@ -49,9 +49,6 @@ jobs:
       - name: Test containers
         run: docker ps
 
-      - name: Prepare settings.xml file
-        run: cp docker/ci/settings.xml.template ~/.m2
-
       - name: Install AWS CLI
         id: install-aws-cli
         uses: unfor19/install-aws-cli-action@v1
@@ -66,8 +63,9 @@ jobs:
           CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain mpanov --domain-owner 533267200006 --query authorizationToken --output text)
           echo "CODEARTIFACT_AUTH_TOKEN=${CODEARTIFACT_AUTH_TOKEN}" >> $GITHUB_ENV
 
-      - name: Prepare settings.xml with token using sed
+      - name: Prepare settings.xml with token
         run: |
+          cp docker/ci/settings.xml.template ./
           sed -e "s|\${env.CODEARTIFACT_AUTH_TOKEN}|${CODEARTIFACT_AUTH_TOKEN}|g" ~/.m2/settings.xml.template > ~/.m2/settings.xml
           cat ~/.m2/settings.xml
 
