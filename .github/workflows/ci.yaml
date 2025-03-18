@@ -57,7 +57,7 @@ jobs:
       - name: Prepare settings.xml with token
         run: |
           cp docker/ci/settings.xml.template ./
-          sed -e "s|${env.CODEARTIFACT_AUTH_TOKEN}|${CODEARTIFACT_AUTH_TOKEN}|g" settings.xml.template > settings.xml
+          sed -e "s|\${env.CODEARTIFACT_AUTH_TOKEN}|${CODEARTIFACT_AUTH_TOKEN}|g" settings.xml.template > settings.xml
           cat settings.xml
 
       - name: Clear project
