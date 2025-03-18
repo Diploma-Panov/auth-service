@@ -13,7 +13,7 @@
             <id>mpanov-diploma-java-utils</id>
             <repositories>
                 <repository>
-                    <id>codeartifact</id>
+                    <id>mpanov-diploma-java-utils</id>
                     <url>https://mpanov-533267200006.d.codeartifact.us-west-2.amazonaws.com/maven/diploma-java-utils/</url>
                 </repository>
             </repositories>
