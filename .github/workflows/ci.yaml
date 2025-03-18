@@ -65,7 +65,7 @@ jobs:
 
       - name: Compile the project
         run: |
-          mvn -s settings.xml compile
+          mvn -s settings.xml -X compile
 
       - name: Amazon ECR Login
         uses: aws-actions/amazon-ecr-login@v2.0.1
