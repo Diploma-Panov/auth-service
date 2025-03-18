@@ -58,14 +58,12 @@ jobs:
         run: |
           cp docker/ci/settings.xml.template ./
           sed -e "s|\${env.CODEARTIFACT_AUTH_TOKEN}|${CODEARTIFACT_AUTH_TOKEN}|g" settings.xml.template > settings.xml
-          cat settings.xml
 
       - name: Clear project
         run: mvn clean
 
       - name: Compile the project
-        run: |
-          mvn -s settings.xml -X compile
+        run: mvn -s settings.xml compile
 
       - name: Amazon ECR Login
         uses: aws-actions/amazon-ecr-login@v2.0.1
