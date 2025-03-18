@@ -40,15 +40,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: Amazon ECR Login
-        uses: aws-actions/amazon-ecr-login@v2.0.1
-
-      - name: Run build environment
-        run: cd docker/ci && ./pull.sh && ./env.sh
-
-      - name: Test containers
-        run: docker ps
-
       - name: Install AWS CLI
         id: install-aws-cli
         uses: unfor19/install-aws-cli-action@v1
@@ -66,16 +57,24 @@ jobs:
       - name: Prepare settings.xml with token
         run: |
           cp docker/ci/settings.xml.template ./
-          sed -e "s|\${env.CODEARTIFACT_AUTH_TOKEN}|${CODEARTIFACT_AUTH_TOKEN}|g" ~/.m2/settings.xml.template > ~/.m2/settings.xml
-          cat ~/.m2/settings.xml
+          sed -e "s|\${env.CODEARTIFACT_AUTH_TOKEN}|${CODEARTIFACT_AUTH_TOKEN}|g" settings.xml.template > settings.xml
+          cat settings.xml
 
       - name: Clear project
         run: mvn clean
 
       - name: Compile the project
         run: |
-          cat ~/.m2/settings.xml
-          mvn -s ~/.m2/settings.xml compile
+          mvn -s settings.xml compile
+
+      - name: Amazon ECR Login
+        uses: aws-actions/amazon-ecr-login@v2.0.1
+
+      - name: Run build environment
+        run: cd docker/ci && ./pull.sh && ./env.sh
+
+      - name: Test containers
+        run: docker ps
 
       - name: Run tests
         run: mvn test -Dspring.profiles.active=testci
