@@ -152,4 +152,12 @@
         </plugins>
     </build>
 
+    <repositories>
+        <repository>
+            <id>mpanov-diploma-java-utils</id>
+            <name>mpanov-diploma-java-utils</name>
+            <url>https://mpanov-533267200006.d.codeartifact.us-west-2.amazonaws.com/maven/diploma-java-utils/</url>
+        </repository>
+    </repositories>
+
 </project>
