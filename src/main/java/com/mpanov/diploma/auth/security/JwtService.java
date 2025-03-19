@@ -2,8 +2,8 @@ package com.mpanov.diploma.auth.security;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mpanov.diploma.auth.exception.InvalidTokenException;
 import com.mpanov.diploma.auth.exception.TokenFormatException;
-import com.mpanov.diploma.auth.exception.TokenGenerationException;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.*;
 import com.nimbusds.jose.proc.SimpleSecurityContext;
@@ -11,7 +11,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
-import org.apache.maven.shared.utils.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -63,23 +63,23 @@ public class JwtService {
         try {
             JWSObject jwsObject = JWSObject.parse(token);
             if (!jwsObject.verify(verifier)) {
-                throw new TokenGenerationException("Invalid JWT signature");
+                throw new InvalidTokenException("Invalid JWT signature");
             }
             JWTClaimsSet claims = JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
             if (!claims.getAudience().contains(JWT_AUDIENCE)) {
-                throw new TokenGenerationException("Invalid JWT audience");
+                throw new InvalidTokenException("Invalid JWT audience");
             }
 
             long expirationTime = claims.getExpirationTime().getTime();
             long currentTime = System.currentTimeMillis();
 
             if (expirationTime < currentTime) {
-                throw new TokenGenerationException("JWT expired");
+                throw new InvalidTokenException("JWT expired");
             }
 
             return claims;
         } catch (JOSEException | ParseException e) {
-            throw new TokenGenerationException(e.getMessage());
+            throw new InvalidTokenException(e.getMessage());
         }
     }
 

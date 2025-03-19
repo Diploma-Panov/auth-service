@@ -14,4 +14,14 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ErrorResponseDto {
     private List<ErrorResponseElement> errors = new ArrayList<>();
+
+    public ErrorResponseDto(Exception exception, ServiceErrorType errorType, Boolean hideMessage) {
+        this.errors = List.of(
+                new ErrorResponseElement(
+                        exception.getMessage(),
+                        errorType.toString(),
+                        exception.getClass().getSimpleName()
+                )
+        );
+    }
 }

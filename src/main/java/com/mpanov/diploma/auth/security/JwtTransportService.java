@@ -3,6 +3,7 @@ package com.mpanov.diploma.auth.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpanov.diploma.auth.dto.AbstractResponseDto;
 import com.mpanov.diploma.auth.dto.TokenResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class JwtTransportService {
 
-    private static final String AUTH_HEADER = "Authorization";
+    public static final String AUTH_HEADER = "Authorization";
 
     private static final String ACCESS_TOKEN_PREFIX = "Bearer ";
 
@@ -30,6 +31,14 @@ public class JwtTransportService {
                 ACCESS_TOKEN_PREFIX + accessToken,
                 REFRESH_TOKEN_PREFIX + refreshToken
         );
+    }
+
+    public String getAccessTokenFromRequest(HttpServletRequest request) {
+        String header = request.getHeader(AUTH_HEADER);
+        if (header != null && header.startsWith(ACCESS_TOKEN_PREFIX)) {
+            return header.substring(ACCESS_TOKEN_PREFIX.length());
+        }
+        return null;
     }
 
 }

@@ -32,11 +32,16 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -58,6 +63,12 @@ public class SecurityConfig {
 
     private final JwtPayloadService jwtPayloadService;
 
+    private final JwtService jwtService;
+
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
     @Bean
     @SneakyThrows
     public AuthenticationManager authenticationManager(HttpSecurity http) {
@@ -67,17 +78,36 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        final CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setMaxAge(10000L);
+        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedMethods(List.of("GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE", "PATCH"));
+        configuration.setAllowCredentials(false);
+        configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "Content-Range", "Content-Length", "ETag"));
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(eh ->
+                        eh.accessDeniedHandler(customAccessDeniedHandler)
+                                .authenticationEntryPoint(customAuthenticationEntryPoint)
+                )
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(API_USER + "/**").hasAnyRole(UserType.USER.name())
                         .requestMatchers(API_ADMIN + "/**").hasAnyRole(UserType.ADMIN.name())
                         .requestMatchers(API_PUBLIC + "/**", "/error").permitAll()
                         .anyRequest().authenticated()
                 )
+                .addFilterAfter(accessTokenAuthenticationFilter(authenticationManager), ExceptionTranslationFilter.class)
                 .addFilter(credentialsAuthenticationFilter(authenticationManager));
 
         return http.build();
@@ -94,6 +124,14 @@ public class SecurityConfig {
         filter.setAuthenticationFailureHandler(userAuthenticationFailureHandler());
 
         return filter;
+    }
+
+    private AccessTokenAuthenticationFilter accessTokenAuthenticationFilter(AuthenticationManager authenticationManager) {
+        return new AccessTokenAuthenticationFilter(
+                authenticationManager,
+                jwtService,
+                jwtTransportService
+        );
     }
 
     private UserAuthenticationSuccessHandler userAuthenticationSuccessHandler() {
