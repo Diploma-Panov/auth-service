@@ -3,6 +3,7 @@ package com.mpanov.diploma.auth.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpanov.diploma.auth.model.UserType;
 import com.mpanov.diploma.auth.security.*;
+import com.mpanov.diploma.auth.service.ServiceUserLogic;
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.crypto.DirectEncrypter;
@@ -69,6 +70,8 @@ public class SecurityConfig {
 
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
+    private final ServiceUserLogic serviceUserLogic;
+
     @Bean
     @SneakyThrows
     public AuthenticationManager authenticationManager(HttpSecurity http) {
@@ -108,7 +111,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .addFilterAfter(accessTokenAuthenticationFilter(authenticationManager), ExceptionTranslationFilter.class)
-                .addFilter(credentialsAuthenticationFilter(authenticationManager));
+                .addFilterAfter(credentialsAuthenticationFilter(authenticationManager), AccessTokenAuthenticationFilter.class)
+                .addFilterBefore(refreshTokenAuthenticationFilter(), CredentialsAuthenticationFilter.class);
 
         return http.build();
     }
@@ -131,6 +135,16 @@ public class SecurityConfig {
                 authenticationManager,
                 jwtService,
                 jwtTransportService
+        );
+    }
+
+    private RefreshTokenAuthenticationFilter refreshTokenAuthenticationFilter() {
+        return new RefreshTokenAuthenticationFilter(
+                API_PUBLIC + "/users/refresh",
+                jwtTransportService,
+                jwtPayloadService,
+                jwtService,
+                serviceUserLogic
         );
     }
 

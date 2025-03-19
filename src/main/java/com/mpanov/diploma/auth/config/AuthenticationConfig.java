@@ -66,7 +66,7 @@ public class AuthenticationConfig {
 
         JWKSource<SimpleSecurityContext> jweKeySource = new ImmutableSecret<>(secretKey);
         JWEKeySelector<SimpleSecurityContext> jweKeySelector =
-                new JWEDecryptionKeySelector<>(JWEAlgorithm.DIR, EncryptionMethod.A128CBC_HS256, jweKeySource);
+                new JWEDecryptionKeySelector<>(JWEAlgorithm.DIR, EncryptionMethod.A256CBC_HS512, jweKeySource);
         jwtProcessor.setJWEKeySelector(jweKeySelector);
 
         return new JwtService(

@@ -73,7 +73,7 @@ public class ServiceUser {
             mappedBy = "user",
             targetEntity = OrganizationMember.class,
             cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY,
+            fetch = FetchType.EAGER,
             orphanRemoval = true
     )
     @Builder.Default

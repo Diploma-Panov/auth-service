@@ -30,4 +30,9 @@ public class ServiceUserDao {
                 .orElseThrow(() -> new NotFoundException(ServiceUser.class, "email", email));
     }
 
+    public ServiceUser findServiceUserByIdThrowable(Long id) {
+        return serviceUserRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(ServiceUser.class, "id", String.valueOf(id)));
+    }
+
 }

@@ -96,6 +96,22 @@ public class ServiceUserLogic {
         return new UserAuthentication(subject);
     }
 
+    public JwtUserSubject refreshSubject(JwtUserSubject subject) {
+        Long userId = subject.getUserId();
+
+        ServiceUser user = serviceUserDao.findServiceUserByIdThrowable(userId);
+
+        return JwtUserSubject.builder()
+                .userId(userId)
+                .username(user.getEmail())
+                .userType(user.getType())
+                .loginType(LoginType.USER_LOGIN)
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .organizations(this.mapOrganizationAccessEntries(user))
+                .build();
+    }
+
     private Set<OrganizationAccessEntry> mapOrganizationAccessEntries(ServiceUser user) {
         Set<OrganizationAccessEntry> rv = new HashSet<>();
         Set<OrganizationMember> members = user.getOrganizationMembers();

@@ -41,4 +41,12 @@ public class JwtTransportService {
         return null;
     }
 
+    public String getRefreshTokenFromRequest(HttpServletRequest request) {
+        String header = request.getHeader(AUTH_HEADER);
+        if (header != null && header.startsWith(REFRESH_TOKEN_PREFIX)) {
+            return header.substring(REFRESH_TOKEN_PREFIX.length());
+        }
+        return null;
+    }
+
 }

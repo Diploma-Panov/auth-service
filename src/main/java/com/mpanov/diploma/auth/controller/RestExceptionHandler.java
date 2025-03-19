@@ -7,6 +7,7 @@ import com.mpanov.diploma.auth.exception.InvalidTokenException;
 import com.mpanov.diploma.auth.exception.LoginException;
 import com.mpanov.diploma.auth.exception.PlatformException;
 import com.mpanov.diploma.auth.exception.TokenFormatException;
+import com.nimbusds.jose.proc.BadJOSEException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ClassUtils;
