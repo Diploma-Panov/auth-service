@@ -1,7 +1,9 @@
 package com.mpanov.diploma.auth.dto;
 
+import com.mpanov.diploma.auth.model.OrganizationScope;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
@@ -17,13 +19,21 @@ public class UserSignupDto {
     private String password;
 
     @NotBlank
-    @Length(min = 1, max = 63)
+    @Length(min = 1, max = 255)
     private String firstName;
 
-    @Length(max = 63)
+    @Length(max = 255)
     private String lastName;
 
-    @Length(max = 15)
-    private String phone;
+    @Length(max = 255)
+    private String companyName;
+
+    @Length(max = 512)
+    private String profilePictureUrl;
+
+    @NotNull
+    private OrganizationScope registrationScope;
+
+    private String siteUrl;
 
 }

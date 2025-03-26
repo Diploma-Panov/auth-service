@@ -15,7 +15,6 @@ public class PasswordService {
     public void assertPasswordCompliant(String password) {
         PasswordValidator validator = new PasswordValidator(
                 new LengthRule(8, 64),
-                new RepeatCharactersRule(3),
                 new CharacterRule(EnglishCharacterData.Digit, 1),
                 new CharacterRule(EnglishCharacterData.SpecialAscii, 1),
                 new CharacterRule(EnglishCharacterData.LowerCase, 1),

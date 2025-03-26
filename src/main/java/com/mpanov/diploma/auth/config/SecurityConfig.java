@@ -1,24 +1,9 @@
 package com.mpanov.diploma.auth.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mpanov.diploma.auth.model.UserType;
+import com.mpanov.diploma.auth.model.UserSystemRole;
 import com.mpanov.diploma.auth.security.*;
 import com.mpanov.diploma.auth.service.ServiceUserLogic;
-import com.nimbusds.jose.EncryptionMethod;
-import com.nimbusds.jose.JWEAlgorithm;
-import com.nimbusds.jose.crypto.DirectEncrypter;
-import com.nimbusds.jose.crypto.Ed25519Signer;
-import com.nimbusds.jose.crypto.RSASSASigner;
-import com.nimbusds.jose.crypto.RSASSAVerifier;
-import com.nimbusds.jose.jwk.OctetKeyPair;
-import com.nimbusds.jose.jwk.source.ImmutableSecret;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.JWEDecryptionKeySelector;
-import com.nimbusds.jose.proc.JWEKeySelector;
-import com.nimbusds.jose.proc.SimpleSecurityContext;
-import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
-import com.nimbusds.jwt.proc.DefaultJWTProcessor;
-import com.sun.net.httpserver.HttpsServer;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.context.annotation.Bean;
@@ -30,8 +15,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -39,9 +22,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import java.security.interfaces.RSAPrivateCrtKey;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 
 @Configuration
@@ -105,8 +85,8 @@ public class SecurityConfig {
                                 .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers(API_USER + "/**").hasAnyRole(UserType.USER.name())
-                        .requestMatchers(API_ADMIN + "/**").hasAnyRole(UserType.ADMIN.name())
+                        .requestMatchers(API_USER + "/**").hasAnyRole(UserSystemRole.USER.name())
+                        .requestMatchers(API_ADMIN + "/**").hasAnyRole(UserSystemRole.ADMIN.name())
                         .requestMatchers(API_PUBLIC + "/**", "/error").permitAll()
                         .anyRequest().authenticated()
                 )

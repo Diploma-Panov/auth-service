@@ -2,9 +2,12 @@ package com.mpanov.diploma.auth.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,8 +15,8 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "ServiceUser")
-@Table(name = "service_user", schema = "public")
+@Entity(name = "ServiceUsers")
+@Table(name = "users", schema = "public")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ServiceUser {
 
@@ -21,7 +24,7 @@ public class ServiceUser {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ServiceUserIds")
     @SequenceGenerator(
             name = "ServiceUserIds",
-            sequenceName = "service_user_ids",
+            sequenceName = "user_ids",
             allocationSize = 1,
             initialValue = 10001,
             schema = "public"
@@ -29,26 +32,25 @@ public class ServiceUser {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(nullable = false, length = 63)
+    @Column(nullable = false, name = "first_name")
     @EqualsAndHashCode.Include
     private String firstname;
 
-    @Column(length = 63)
+    @Column(name = "last_name")
     @EqualsAndHashCode.Include
     private String lastname;
+
+    @Column
+    private String companyName;
 
     @Column(nullable = false, unique = true)
     @EqualsAndHashCode.Include
     private String email;
 
-    @Column(length = 15)
-    @EqualsAndHashCode.Include
-    private String phone;
-
-    @Column(nullable = false, length = 4095)
+    @Column(nullable = false, length = 2048)
     private String passwordHash;
 
-    @Column(length = 511)
+    @Column(length = 512)
     @EqualsAndHashCode.Include
     private String profilePictureUrl;
 
@@ -56,10 +58,20 @@ public class ServiceUser {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @EqualsAndHashCode.Include
-    private UserType type;
+    private UserSystemRole systemRole;
+
+    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    private LocalDateTime registrationDate;
+
+    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    private LocalDateTime lastLoginDate;
 
     @OneToMany(
-            mappedBy = "ownerUser",
+            mappedBy = "creatorUser",
             targetEntity = Organization.class,
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
@@ -70,7 +82,7 @@ public class ServiceUser {
     private Set<Organization> organizations = new HashSet<>();
 
     @OneToMany(
-            mappedBy = "user",
+            mappedBy = "memberUser",
             targetEntity = OrganizationMember.class,
             cascade = CascadeType.ALL,
             fetch = FetchType.EAGER,
@@ -82,12 +94,12 @@ public class ServiceUser {
 
     public void addOrganization(Organization organization) {
         this.organizations.add(organization);
-        organization.setOwnerUser(this);
+        organization.setCreatorUser(this);
     }
 
     public void addOrganizationMember(OrganizationMember organizationMember) {
         this.organizationMembers.add(organizationMember);
-        organizationMember.setUser(this);
+        organizationMember.setMemberUser(this);
     }
 
 }

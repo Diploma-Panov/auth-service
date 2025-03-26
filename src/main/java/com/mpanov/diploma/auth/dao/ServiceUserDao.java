@@ -4,6 +4,7 @@ import com.mpanov.diploma.auth.exception.NotFoundException;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.OrganizationMember;
 import com.mpanov.diploma.auth.model.ServiceUser;
+import com.mpanov.diploma.auth.model.UserSystemRole;
 import com.mpanov.diploma.auth.repository.ServiceUserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,14 @@ public class ServiceUserDao {
     public ServiceUser findServiceUserByIdThrowable(Long id) {
         return serviceUserRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ServiceUser.class, "id", String.valueOf(id)));
+    }
+
+    public void updateUserSystemRole(Long id, UserSystemRole type) {
+        serviceUserRepository.changeSystemRoleByUserId(id, type);
+    }
+
+    public void updateLoginDate(Long userId) {
+        serviceUserRepository.updateLastLoginDate(userId);
     }
 
 }

@@ -5,6 +5,7 @@ import com.mpanov.diploma.auth.dao.ServiceUserDao;
 import com.mpanov.diploma.auth.dto.TokenResponseDto;
 import com.mpanov.diploma.auth.dto.UserSignupDto;
 import com.mpanov.diploma.auth.exception.LoginException;
+import com.mpanov.diploma.auth.exception.UserSignupException;
 import com.mpanov.diploma.auth.model.*;
 import com.mpanov.diploma.auth.security.*;
 import lombok.AllArgsConstructor;
@@ -36,13 +37,18 @@ public class ServiceUserLogic {
 
         // Create new permanent organization
         Organization permanentOrganization = Organization.builder()
-                .organizationName(dto.getFirstName() + "'s Organization")
+                .name(dto.getFirstName() + "'s Organization")
+                .slug(generateSlugFromEmail(normalizedEmail))
+                .organizationScope(dto.getRegistrationScope())
+                .siteUrl(dto.getSiteUrl())
+                .description(dto.getFirstName() + "'s Personal Organization")
+                .organizationAvatarUrl(dto.getProfilePictureUrl())
                 .type(OrganizationType.PERMANENT)
                 .build();
 
         // Create new permanent organization member
         OrganizationMember member = OrganizationMember.builder()
-                .allowedUrls(new Long[0])
+                .memberUrls(new Long[0])
                 .allowedAllUrls(true)
                 .roles(Set.of(MemberRole.ORGANIZATION_OWNER))
                 .build();
@@ -51,10 +57,11 @@ public class ServiceUserLogic {
         ServiceUser userToCreate = ServiceUser.builder()
                 .firstname(dto.getFirstName())
                 .lastname(dto.getLastName())
+                .companyName(dto.getCompanyName())
                 .email(normalizedEmail)
                 .passwordHash(passwordHash)
-                .phone(dto.getPhone())
-                .type(UserType.USER)
+                .profilePictureUrl(dto.getProfilePictureUrl())
+                .systemRole(UserSystemRole.USER)
                 .build();
 
         // Save new user with all relations
@@ -68,7 +75,7 @@ public class ServiceUserLogic {
         JwtUserSubject subject = JwtUserSubject.builder()
                 .userId(user.getId())
                 .username(user.getEmail())
-                .userType(user.getType())
+                .userSystemRole(user.getSystemRole())
                 .loginType(LoginType.USER_LOGIN)
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
@@ -87,12 +94,15 @@ public class ServiceUserLogic {
         JwtUserSubject subject = JwtUserSubject.builder()
                 .userId(user.getId())
                 .username(user.getEmail())
-                .userType(user.getType())
+                .userSystemRole(user.getSystemRole())
                 .loginType(LoginType.USER_LOGIN)
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
                 .organizations(this.mapOrganizationAccessEntries(user))
                 .build();
+
+        serviceUserDao.updateLoginDate(user.getId());
+
         return new UserAuthentication(subject);
     }
 
@@ -104,12 +114,16 @@ public class ServiceUserLogic {
         return JwtUserSubject.builder()
                 .userId(userId)
                 .username(user.getEmail())
-                .userType(user.getType())
+                .userSystemRole(user.getSystemRole())
                 .loginType(LoginType.USER_LOGIN)
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
                 .organizations(this.mapOrganizationAccessEntries(user))
                 .build();
+    }
+
+    public void changeUserSystemRole(Long userId, UserSystemRole newRole) {
+        serviceUserDao.updateUserSystemRole(userId, newRole);
     }
 
     private Set<OrganizationAccessEntry> mapOrganizationAccessEntries(ServiceUser user) {
@@ -119,7 +133,8 @@ public class ServiceUserLogic {
             rv.add(
                     OrganizationAccessEntry.builder()
                             .organizationId(member.getOrganization().getId())
-                            .allowedUrls(member.getAllowedUrls())
+                            .slug(member.getOrganization().getSlug())
+                            .allowedUrls(member.getMemberUrls())
                             .allowedAllUrls(member.getAllowedAllUrls())
                             .roles(member.getRoles())
                             .build()
@@ -127,6 +142,16 @@ public class ServiceUserLogic {
         }
 
         return rv;
+    }
+
+    private String generateSlugFromEmail(String email) {
+        if (StringUtils.isBlank(email)) {
+            throw new UserSignupException(SignupErrorType.INVALID_EMAIL_FORMAT, "Email %s is invalid".formatted(email));
+        }
+        return email.toLowerCase()
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("^-+", "")
+                .replaceAll("-+$", "");
     }
 
 }

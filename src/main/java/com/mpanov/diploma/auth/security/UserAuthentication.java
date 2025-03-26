@@ -1,6 +1,6 @@
 package com.mpanov.diploma.auth.security;
 
-import com.mpanov.diploma.auth.model.UserType;
+import com.mpanov.diploma.auth.model.UserSystemRole;
 import lombok.Data;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.CredentialsContainer;
@@ -47,13 +47,13 @@ public class UserAuthentication implements Authentication, CredentialsContainer 
         if (userSubject == null) {
             return AuthorityUtils.NO_AUTHORITIES;
         }
-        if (userSubject.getUserType() == UserType.ADMIN) {
+        if (userSubject.getUserSystemRole() == UserSystemRole.ADMIN) {
             return List.of(
-                    UserType.USER::getAuthority,
-                    UserType.ADMIN::getAuthority
+                    UserSystemRole.USER::getAuthority,
+                    UserSystemRole.ADMIN::getAuthority
             );
         }
-        return List.of(UserType.USER::getAuthority);
+        return List.of(UserSystemRole.USER::getAuthority);
     }
 
     @Override

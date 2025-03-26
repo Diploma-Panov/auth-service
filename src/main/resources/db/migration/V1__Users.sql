@@ -1,14 +1,16 @@
-CREATE TYPE public.service_user_type AS ENUM ('USER', 'ADMIN');
+CREATE TYPE public.user_system_role AS ENUM ('USER', 'ADMIN');
 
-CREATE SEQUENCE public.service_user_ids START 10001 INCREMENT 1;
+CREATE SEQUENCE public.user_ids START 10001 INCREMENT 1;
 
-CREATE TABLE public.service_user(
-    id BIGINT PRIMARY KEY,
-    firstname VARCHAR(63) NOT NULL,
-    lastname VARCHAR(63),
+CREATE TABLE public.users(
+    id BIGINT UNIQUE NOT NULL PRIMARY KEY,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255),
+    company_name VARCHAR(255),
     email VARCHAR(255) NOT NULL UNIQUE,
-    phone VARCHAR(15),
-    password_hash VARCHAR(4095) NOT NULL,
-    profile_picture_url VARCHAR(511),
-    type public.service_user_type NOT NULL
+    password_hash VARCHAR(2048) NOT NULL,
+    profile_picture_url VARCHAR(512),
+    system_role public.user_system_role NOT NULL,
+    registration_date TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    last_login_date TIMESTAMP NOT NULL DEFAULT current_timestamp
 );

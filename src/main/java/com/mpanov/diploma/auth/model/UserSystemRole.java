@@ -1,6 +1,6 @@
 package com.mpanov.diploma.auth.model;
 
-public enum UserType {
+public enum UserSystemRole {
     USER,
     ADMIN;
 

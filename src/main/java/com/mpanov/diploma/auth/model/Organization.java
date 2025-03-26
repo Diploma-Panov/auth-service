@@ -13,7 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "Organization")
-@Table(name = "organization", schema = "public")
+@Table(name = "organizations", schema = "public")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Organization {
 
@@ -31,7 +31,24 @@ public class Organization {
 
     @Column(nullable = false, unique = true)
     @EqualsAndHashCode.Include
-    private String organizationName;
+    private String name;
+
+    @Column(nullable = false, unique = true)
+    @EqualsAndHashCode.Include
+    private String slug;
+
+    @Column(length = 127)
+    private String siteUrl;
+
+    private String description;
+
+    @Column(length = 512)
+    private String organizationAvatarUrl;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    private OrganizationScope organizationScope;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -45,11 +62,11 @@ public class Organization {
             targetEntity = ServiceUser.class
     )
     @JoinColumn(
-            name = "owner_user_id",
+            name = "creator_user_id",
             foreignKey = @ForeignKey(name = "org_owner_user_fk")
     )
     @ToString.Exclude
-    private ServiceUser ownerUser;
+    private ServiceUser creatorUser;
 
     @OneToMany(
             mappedBy = "organization",

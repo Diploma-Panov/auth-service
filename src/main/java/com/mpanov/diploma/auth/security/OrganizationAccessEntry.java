@@ -23,6 +23,9 @@ public class OrganizationAccessEntry implements Serializable {
     @EqualsAndHashCode.Include
     private Long organizationId;
 
+    @EqualsAndHashCode.Include
+    private String slug;
+
     private Long[] allowedUrls;
 
     private Boolean allowedAllUrls;

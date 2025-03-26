@@ -13,7 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "OrganizationMember")
-@Table(name = "organization_member", schema = "public")
+@Table(name = "organization_members", schema = "public")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class OrganizationMember {
     @Id
@@ -35,11 +35,11 @@ public class OrganizationMember {
             targetEntity = ServiceUser.class
     )
     @JoinColumn(
-            name = "user_id",
+            name = "member_user_id",
             foreignKey = @ForeignKey(name = "org_member_user_fk")
     )
     @ToString.Exclude
-    private ServiceUser user;
+    private ServiceUser memberUser;
 
 
     @ManyToOne(
@@ -63,7 +63,7 @@ public class OrganizationMember {
     @Type(LongArrayType.class)
     @Column(nullable = false, columnDefinition = "BIGINT[]")
     @EqualsAndHashCode.Include
-    private Long[] allowedUrls;
+    private Long[] memberUrls;
 
     @Column(nullable = false)
     @EqualsAndHashCode.Include

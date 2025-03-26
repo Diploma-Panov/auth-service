@@ -3,7 +3,7 @@ package com.mpanov.diploma.auth.security;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mpanov.diploma.auth.model.LoginType;
-import com.mpanov.diploma.auth.model.UserType;
+import com.mpanov.diploma.auth.model.UserSystemRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,7 +29,7 @@ public class JwtUserSubject implements Serializable, AuthenticatedPrincipal {
 
     private String username;
 
-    private UserType userType;
+    private UserSystemRole userSystemRole;
 
     private LoginType loginType;
 
