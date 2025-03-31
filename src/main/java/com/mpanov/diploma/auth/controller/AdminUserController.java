@@ -16,13 +16,13 @@ import static com.mpanov.diploma.auth.config.SecurityConfig.API_ADMIN;
 
 @Slf4j
 @RestController
-@RequestMapping(API_ADMIN)
+@RequestMapping(API_ADMIN + "/users")
 @AllArgsConstructor
 public class AdminUserController {
 
     private final ServiceUserLogic serviceUserLogic;
 
-    @PatchMapping("/users/role")
+    @PatchMapping("/role")
     public AbstractResponseDto<MessageResponseDto> changeUserSystemRoleByAdmin(@Valid @RequestBody ChangeUserSystemRoleByAdminDto dto) {
         log.info("changeUserSystemRoleByAdmin: {}", dto);
         serviceUserLogic.changeUserSystemRole(dto.getUserId(), dto.getNewRole());

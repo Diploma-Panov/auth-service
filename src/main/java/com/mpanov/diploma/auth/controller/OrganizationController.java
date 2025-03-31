@@ -1,0 +1,66 @@
+package com.mpanov.diploma.auth.controller;
+
+import com.mpanov.diploma.auth.dto.AbstractResponseDto;
+import com.mpanov.diploma.auth.dto.OrganizationsListDto;
+import com.mpanov.diploma.auth.model.Organization;
+import com.mpanov.diploma.auth.model.ServiceUser;
+import com.mpanov.diploma.auth.security.ActorContext;
+import com.mpanov.diploma.auth.service.OrganizationService;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
+import static com.mpanov.diploma.auth.config.SecurityConfig.API_USER;
+
+@Slf4j
+@RestController
+@RequestMapping(API_USER + "/organizations")
+@AllArgsConstructor
+public class OrganizationController {
+
+    private final OrganizationService organizationService;
+
+    private final ActorContext actorContext;
+
+    private final Mapper mapper;
+
+    @GetMapping
+    public AbstractResponseDto<OrganizationsListDto> getUserOrganizations(
+            @RequestParam(name = "p") Optional<Integer> pageOpt,
+            @RequestParam(name = "q") Optional<Integer> quantityOpt,
+            @RequestParam(name = "sb") Optional<String> sortByOpt,
+            @RequestParam(name = "dir") Optional<String> directionOpt
+    ) {
+        Pageable pageable = mapper.toPageable(
+                pageOpt.orElse(0),
+                quantityOpt.orElse(10),
+                sortByOpt
+                        .filter(sb -> sb.equals("id") || sb.equals("name"))
+                        .orElse("id"),
+                directionOpt.orElse("asc")
+        );
+
+        ServiceUser authenticatedUser = actorContext.getAuthenticatedUser();
+
+        log.info("Requested GET /user/organizations for userId={}", authenticatedUser.getId());
+
+        List<Organization> organizations = organizationService.getUserOrganizations(
+                authenticatedUser, pageable
+        );
+        int total = organizationService.countUserOrganizations(authenticatedUser);
+
+        OrganizationsListDto rv = mapper.toOrganizationsListDto(
+                organizations,
+                total,
+                pageable.getPageNumber(),
+                pageable.getPageSize()
+        );
+
+        return new AbstractResponseDto<>(rv);
+    }
+
+}
