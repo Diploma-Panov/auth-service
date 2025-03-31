@@ -1,15 +1,19 @@
 package com.mpanov.diploma.auth.controller;
 
 import com.mpanov.diploma.auth.dto.common.AbstractResponseDto;
+import com.mpanov.diploma.auth.dto.common.MessageResponseDto;
+import com.mpanov.diploma.auth.dto.organization.CreateOrganizationDto;
 import com.mpanov.diploma.auth.dto.organization.OrganizationDto;
 import com.mpanov.diploma.auth.dto.organization.OrganizationsListDto;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.ServiceUser;
 import com.mpanov.diploma.auth.security.common.ActorContext;
 import com.mpanov.diploma.auth.service.OrganizationService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -75,6 +79,18 @@ public class OrganizationController {
 
         OrganizationDto rv = mapper.toOrganizationDto(organization);
 
+        return new AbstractResponseDto<>(rv);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public AbstractResponseDto<OrganizationDto> createNewOrganization(
+            @Valid @RequestBody CreateOrganizationDto createOrganizationDto
+    ) {
+        ServiceUser authenticatedUser = actorContext.getAuthenticatedUser();
+        log.info("Requested POST /user/organizations for userId={}, dto={}", authenticatedUser.getId(), createOrganizationDto.toString());
+        Organization newOrganization = organizationService.createOrganizationByUser(authenticatedUser, createOrganizationDto);
+        OrganizationDto rv = mapper.toOrganizationDto(newOrganization);
         return new AbstractResponseDto<>(rv);
     }
 

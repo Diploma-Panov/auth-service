@@ -3,10 +3,7 @@ package com.mpanov.diploma.auth.controller;
 import com.mpanov.diploma.auth.dto.common.ErrorResponseDto;
 import com.mpanov.diploma.auth.dto.common.ErrorResponseElement;
 import com.mpanov.diploma.auth.dto.common.ServiceErrorType;
-import com.mpanov.diploma.auth.exception.common.InvalidTokenException;
-import com.mpanov.diploma.auth.exception.common.LoginException;
-import com.mpanov.diploma.auth.exception.common.PlatformException;
-import com.mpanov.diploma.auth.exception.common.TokenFormatException;
+import com.mpanov.diploma.auth.exception.common.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ClassUtils;
@@ -67,6 +64,14 @@ public class RestExceptionHandler {
     public ErrorResponseDto handleInvalidTokenException(HttpServletRequest req, InvalidTokenException e) {
         logError(req, e);
         return composeErrorResponseDto(e, ServiceErrorType.INVALID_ACCESS_TOKEN);
+    }
+
+    @ExceptionHandler(DuplicateException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponseDto handleDuplicateException(HttpServletRequest req, DuplicateException e) {
+        logError(req, e);
+        return composeErrorResponseDto(e, ServiceErrorType.ENTITY_ALREADY_EXISTS);
     }
 
     @ExceptionHandler(TokenFormatException.class)

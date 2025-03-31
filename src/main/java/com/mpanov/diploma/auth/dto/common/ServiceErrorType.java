@@ -10,7 +10,8 @@ public enum ServiceErrorType {
     LOGIN_FAILED,
     ACCESS_DENIED,
     TOKEN_GENERATION_FAILED,
-    EMAIL_IS_INVALID;
+    EMAIL_IS_INVALID,
+    ENTITY_ALREADY_EXISTS;
 
    public static ServiceErrorType fromSignupErrorType(SignupErrorType signupErrorType) {
        return switch (signupErrorType) {
