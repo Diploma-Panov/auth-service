@@ -1,7 +1,7 @@
 package com.mpanov.diploma.auth.controller;
 
-import com.mpanov.diploma.auth.dto.OrganizationDto;
-import com.mpanov.diploma.auth.dto.OrganizationsListDto;
+import com.mpanov.diploma.auth.dto.organization.OrganizationDto;
+import com.mpanov.diploma.auth.dto.organization.OrganizationsListDto;
 import com.mpanov.diploma.auth.model.Organization;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

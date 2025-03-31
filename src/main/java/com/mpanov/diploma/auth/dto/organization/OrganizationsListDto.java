@@ -1,4 +1,4 @@
-package com.mpanov.diploma.auth.dto;
+package com.mpanov.diploma.auth.dto.organization;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

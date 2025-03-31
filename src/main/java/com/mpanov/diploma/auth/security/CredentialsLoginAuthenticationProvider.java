@@ -1,9 +1,7 @@
 package com.mpanov.diploma.auth.security;
 
-import com.mpanov.diploma.auth.exception.LoginException;
+import com.mpanov.diploma.auth.exception.common.LoginException;
 import com.mpanov.diploma.auth.service.ServiceUserLogic;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.AuthenticationProvider;

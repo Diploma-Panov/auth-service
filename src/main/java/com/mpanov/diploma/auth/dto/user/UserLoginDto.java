@@ -1,4 +1,4 @@
-package com.mpanov.diploma.auth.dto;
+package com.mpanov.diploma.auth.dto.user;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

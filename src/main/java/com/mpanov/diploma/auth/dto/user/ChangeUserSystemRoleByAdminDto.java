@@ -1,7 +1,7 @@
-package com.mpanov.diploma.auth.dto;
+package com.mpanov.diploma.auth.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.mpanov.diploma.auth.model.UserSystemRole;
+import com.mpanov.diploma.auth.model.common.UserSystemRole;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;

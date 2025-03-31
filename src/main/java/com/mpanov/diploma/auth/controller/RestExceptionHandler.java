@@ -1,13 +1,12 @@
 package com.mpanov.diploma.auth.controller;
 
-import com.mpanov.diploma.auth.dto.ErrorResponseDto;
-import com.mpanov.diploma.auth.dto.ErrorResponseElement;
-import com.mpanov.diploma.auth.dto.ServiceErrorType;
-import com.mpanov.diploma.auth.exception.InvalidTokenException;
-import com.mpanov.diploma.auth.exception.LoginException;
-import com.mpanov.diploma.auth.exception.PlatformException;
-import com.mpanov.diploma.auth.exception.TokenFormatException;
-import com.nimbusds.jose.proc.BadJOSEException;
+import com.mpanov.diploma.auth.dto.common.ErrorResponseDto;
+import com.mpanov.diploma.auth.dto.common.ErrorResponseElement;
+import com.mpanov.diploma.auth.dto.common.ServiceErrorType;
+import com.mpanov.diploma.auth.exception.common.InvalidTokenException;
+import com.mpanov.diploma.auth.exception.common.LoginException;
+import com.mpanov.diploma.auth.exception.common.PlatformException;
+import com.mpanov.diploma.auth.exception.common.TokenFormatException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ClassUtils;

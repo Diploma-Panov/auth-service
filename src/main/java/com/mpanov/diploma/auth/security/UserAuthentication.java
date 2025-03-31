@@ -1,6 +1,7 @@
 package com.mpanov.diploma.auth.security;
 
-import com.mpanov.diploma.auth.model.UserSystemRole;
+import com.mpanov.diploma.auth.model.common.UserSystemRole;
+import com.mpanov.diploma.auth.security.common.JwtUserSubject;
 import lombok.Data;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.CredentialsContainer;

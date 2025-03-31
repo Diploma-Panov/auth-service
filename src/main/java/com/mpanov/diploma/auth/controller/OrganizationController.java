@@ -1,11 +1,11 @@
 package com.mpanov.diploma.auth.controller;
 
-import com.mpanov.diploma.auth.dto.AbstractResponseDto;
-import com.mpanov.diploma.auth.dto.OrganizationDto;
-import com.mpanov.diploma.auth.dto.OrganizationsListDto;
+import com.mpanov.diploma.auth.dto.common.AbstractResponseDto;
+import com.mpanov.diploma.auth.dto.organization.OrganizationDto;
+import com.mpanov.diploma.auth.dto.organization.OrganizationsListDto;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.ServiceUser;
-import com.mpanov.diploma.auth.security.ActorContext;
+import com.mpanov.diploma.auth.security.common.ActorContext;
 import com.mpanov.diploma.auth.service.OrganizationService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

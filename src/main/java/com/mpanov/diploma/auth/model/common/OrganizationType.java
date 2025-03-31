@@ -1,4 +1,4 @@
-package com.mpanov.diploma.auth.model;
+package com.mpanov.diploma.auth.model.common;
 
 public enum OrganizationType {
     PERMANENT,

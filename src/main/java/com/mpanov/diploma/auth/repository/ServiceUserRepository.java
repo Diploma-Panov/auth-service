@@ -1,7 +1,7 @@
 package com.mpanov.diploma.auth.repository;
 
 import com.mpanov.diploma.auth.model.ServiceUser;
-import com.mpanov.diploma.auth.model.UserSystemRole;
+import com.mpanov.diploma.auth.model.common.UserSystemRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

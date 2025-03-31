@@ -1,8 +1,8 @@
 package com.mpanov.diploma.auth.controller;
 
-import com.mpanov.diploma.auth.dto.AbstractResponseDto;
-import com.mpanov.diploma.auth.dto.ChangeUserSystemRoleByAdminDto;
-import com.mpanov.diploma.auth.dto.MessageResponseDto;
+import com.mpanov.diploma.auth.dto.common.AbstractResponseDto;
+import com.mpanov.diploma.auth.dto.user.ChangeUserSystemRoleByAdminDto;
+import com.mpanov.diploma.auth.dto.common.MessageResponseDto;
 import com.mpanov.diploma.auth.service.ServiceUserLogic;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;

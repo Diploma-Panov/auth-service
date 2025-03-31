@@ -1,4 +1,4 @@
-package com.mpanov.diploma.auth.security;
+package com.mpanov.diploma.auth.security.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mpanov.diploma.MemberRole;

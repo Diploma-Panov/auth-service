@@ -1,7 +1,7 @@
 package com.mpanov.diploma.auth.service;
 
 import com.mpanov.diploma.auth.dao.OrganizationDao;
-import com.mpanov.diploma.auth.exception.NotFoundException;
+import com.mpanov.diploma.auth.exception.common.NotFoundException;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.ServiceUser;
 import lombok.AllArgsConstructor;

@@ -1,9 +1,9 @@
-package com.mpanov.diploma.auth.security;
+package com.mpanov.diploma.auth.security.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.mpanov.diploma.auth.model.LoginType;
-import com.mpanov.diploma.auth.model.UserSystemRole;
+import com.mpanov.diploma.auth.model.common.LoginType;
+import com.mpanov.diploma.auth.model.common.UserSystemRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

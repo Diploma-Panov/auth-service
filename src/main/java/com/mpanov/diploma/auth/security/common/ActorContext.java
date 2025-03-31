@@ -1,4 +1,4 @@
-package com.mpanov.diploma.auth.security;
+package com.mpanov.diploma.auth.security.common;
 
 import com.mpanov.diploma.auth.dao.OrganizationMemberDao;
 import com.mpanov.diploma.auth.dao.ServiceUserDao;

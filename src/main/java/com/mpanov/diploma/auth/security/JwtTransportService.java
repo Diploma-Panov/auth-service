@@ -1,8 +1,8 @@
 package com.mpanov.diploma.auth.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mpanov.diploma.auth.dto.AbstractResponseDto;
-import com.mpanov.diploma.auth.dto.TokenResponseDto;
+import com.mpanov.diploma.auth.dto.common.AbstractResponseDto;
+import com.mpanov.diploma.auth.dto.common.TokenResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;

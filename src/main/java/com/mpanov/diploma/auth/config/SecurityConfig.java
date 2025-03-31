@@ -1,7 +1,7 @@
 package com.mpanov.diploma.auth.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mpanov.diploma.auth.model.UserSystemRole;
+import com.mpanov.diploma.auth.model.common.UserSystemRole;
 import com.mpanov.diploma.auth.security.*;
 import com.mpanov.diploma.auth.service.ServiceUserLogic;
 import lombok.AllArgsConstructor;

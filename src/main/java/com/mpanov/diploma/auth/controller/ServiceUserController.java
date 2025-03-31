@@ -1,8 +1,8 @@
 package com.mpanov.diploma.auth.controller;
 
-import com.mpanov.diploma.auth.dto.AbstractResponseDto;
-import com.mpanov.diploma.auth.dto.TokenResponseDto;
-import com.mpanov.diploma.auth.dto.UserSignupDto;
+import com.mpanov.diploma.auth.dto.common.AbstractResponseDto;
+import com.mpanov.diploma.auth.dto.common.TokenResponseDto;
+import com.mpanov.diploma.auth.dto.user.UserSignupDto;
 import com.mpanov.diploma.auth.service.ServiceUserLogic;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

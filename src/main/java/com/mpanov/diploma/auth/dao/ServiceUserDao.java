@@ -1,10 +1,10 @@
 package com.mpanov.diploma.auth.dao;
 
-import com.mpanov.diploma.auth.exception.NotFoundException;
+import com.mpanov.diploma.auth.exception.common.NotFoundException;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.OrganizationMember;
 import com.mpanov.diploma.auth.model.ServiceUser;
-import com.mpanov.diploma.auth.model.UserSystemRole;
+import com.mpanov.diploma.auth.model.common.UserSystemRole;
 import com.mpanov.diploma.auth.repository.ServiceUserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

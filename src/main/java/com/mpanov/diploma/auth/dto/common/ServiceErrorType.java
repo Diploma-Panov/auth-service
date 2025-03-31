@@ -1,4 +1,4 @@
-package com.mpanov.diploma.auth.dto;
+package com.mpanov.diploma.auth.dto.common;
 
 import com.mpanov.diploma.auth.model.SignupErrorType;
 

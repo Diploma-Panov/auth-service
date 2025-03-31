@@ -1,4 +1,4 @@
-package com.mpanov.diploma.auth.exception;
+package com.mpanov.diploma.auth.exception.common;
 
 import org.springframework.security.authorization.AuthorizationDeniedException;
 

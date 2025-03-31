@@ -1,8 +1,8 @@
-package com.mpanov.diploma.auth.dto;
+package com.mpanov.diploma.auth.dto.common;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.mpanov.diploma.auth.model.HealthStatus;
+import com.mpanov.diploma.auth.model.common.HealthStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

@@ -1,6 +1,6 @@
-package com.mpanov.diploma.auth.dto;
+package com.mpanov.diploma.auth.dto.user;
 
-import com.mpanov.diploma.auth.model.OrganizationScope;
+import com.mpanov.diploma.auth.model.common.OrganizationScope;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

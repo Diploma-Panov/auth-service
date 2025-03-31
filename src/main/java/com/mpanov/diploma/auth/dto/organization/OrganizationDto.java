@@ -1,7 +1,7 @@
-package com.mpanov.diploma.auth.dto;
+package com.mpanov.diploma.auth.dto.organization;
 
-import com.mpanov.diploma.auth.model.OrganizationScope;
-import com.mpanov.diploma.auth.model.OrganizationType;
+import com.mpanov.diploma.auth.model.common.OrganizationScope;
+import com.mpanov.diploma.auth.model.common.OrganizationType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

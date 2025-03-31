@@ -1,7 +1,8 @@
 package com.mpanov.diploma.auth.security;
 
-import com.mpanov.diploma.auth.dto.TokenResponseDto;
-import com.mpanov.diploma.auth.exception.LoginException;
+import com.mpanov.diploma.auth.dto.common.TokenResponseDto;
+import com.mpanov.diploma.auth.exception.common.LoginException;
+import com.mpanov.diploma.auth.security.common.JwtUserSubject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;

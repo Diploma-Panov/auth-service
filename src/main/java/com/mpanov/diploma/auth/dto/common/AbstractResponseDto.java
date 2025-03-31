@@ -1,7 +1,6 @@
-package com.mpanov.diploma.auth.dto;
+package com.mpanov.diploma.auth.dto.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
