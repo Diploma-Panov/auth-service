@@ -1,6 +1,7 @@
 package com.mpanov.diploma.auth.service;
 
 import com.mpanov.diploma.auth.dao.OrganizationDao;
+import com.mpanov.diploma.auth.exception.NotFoundException;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.ServiceUser;
 import lombok.AllArgsConstructor;
@@ -31,4 +32,9 @@ public class OrganizationService {
         return organizationDao.countAllOrganizationsByMemberUserId(userId);
     }
 
+    public Organization getOrganizationBySlug(String slug) {
+        log.info("getOrganizationBySlug: for slug={}", slug);
+        return organizationDao.findOrganizationBySlugOptional(slug)
+                .orElseThrow(() -> new NotFoundException(Organization.class, "slug", slug));
+    }
 }

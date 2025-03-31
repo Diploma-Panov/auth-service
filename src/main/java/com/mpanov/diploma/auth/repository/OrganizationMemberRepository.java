@@ -14,6 +14,9 @@ public interface OrganizationMemberRepository extends JpaRepository<Organization
     @Query("SELECT om.organization.id FROM OrganizationMember om WHERE om.memberUser.id = :memberUserId")
     Set<Long> findAllOrganizationIdsByMemberUserId(@Param("memberUserId") Long memberUserId);
 
+    @Query("SELECT COUNT(*) > 0 FROM OrganizationMember om WHERE om.memberUser.id = ?1 AND om.organization.slug = ?2")
+    boolean existsByMemberUserIdAndOrganizationSlug(Long memberUserId, String organizationSlug);
+
     int countAllOrganizationIdsByMemberUserId(Long memberUserId);
 
 }

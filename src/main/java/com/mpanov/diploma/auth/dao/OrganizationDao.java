@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -31,4 +32,7 @@ public class OrganizationDao {
         return organizationMemberRepository.countAllOrganizationIdsByMemberUserId(memberUserId);
     }
 
+    public Optional<Organization> findOrganizationBySlugOptional(String slug) {
+        return organizationRepository.findOrganizationBySlug(slug);
+    }
 }

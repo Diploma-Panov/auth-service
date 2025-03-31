@@ -1,6 +1,7 @@
 package com.mpanov.diploma.auth.controller;
 
 import com.mpanov.diploma.auth.dto.AbstractResponseDto;
+import com.mpanov.diploma.auth.dto.OrganizationDto;
 import com.mpanov.diploma.auth.dto.OrganizationsListDto;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.ServiceUser;
@@ -59,6 +60,20 @@ public class OrganizationController {
                 pageable.getPageNumber(),
                 pageable.getPageSize()
         );
+
+        return new AbstractResponseDto<>(rv);
+    }
+
+    @GetMapping("/{slug}")
+    public AbstractResponseDto<OrganizationDto> getUserOrganizationBySlug(
+            @PathVariable String slug
+    ) {
+        ServiceUser authenticatedUser = actorContext.getAuthenticatedUser();
+        actorContext.assertHasAccessToOrganization(authenticatedUser.getId(), slug);
+
+        Organization organization = organizationService.getOrganizationBySlug(slug);
+
+        OrganizationDto rv = mapper.toOrganizationDto(organization);
 
         return new AbstractResponseDto<>(rv);
     }
