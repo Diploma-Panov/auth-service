@@ -16,4 +16,9 @@ public class ImageService {
         return "images/organization/" + organizationId + "/" + token + ".png";
     }
 
+    public void removeOrganizationAvatar(Long organizationId, String url) {
+        log.info("removeOrganizationAvatar: for organizationId={} and url={}", organizationId, url);
+
+    }
+
 }

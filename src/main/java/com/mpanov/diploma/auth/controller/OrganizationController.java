@@ -118,4 +118,17 @@ public class OrganizationController {
         return new AbstractResponseDto<>(rv);
     }
 
+    @DeleteMapping("/{slug}/avatar")
+    public AbstractResponseDto<OrganizationDto> deleteOrganizationAvatar(
+            @PathVariable String slug
+    ) {
+        log.info("Requested DELETE /user/organizations/{}/avatar", slug);
+        actorContext.assertHasAccessToOrganization(slug, MemberPermission.MANAGE_ORGANIZATION);
+
+        Organization organization = organizationService.removeOrganizationAvatar(slug);
+
+        OrganizationDto rv = mapper.toOrganizationDto(organization);
+        return new AbstractResponseDto<>(rv);
+    }
+
 }

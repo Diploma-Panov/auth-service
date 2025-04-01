@@ -27,6 +27,7 @@ import java.util.Set;
 @Slf4j
 @Service
 @AllArgsConstructor
+@Transactional(isolation = Isolation.READ_COMMITTED)
 public class OrganizationService {
 
     private final OrganizationDao organizationDao;
@@ -55,7 +56,6 @@ public class OrganizationService {
                 .orElseThrow(() -> new NotFoundException(Organization.class, "slug", slug));
     }
 
-    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Organization createOrganizationByUser(ServiceUser user, CreateOrganizationDto dto) {
         log.info("createOrganizationByUser: for user={}, organizationName={}, slug={}", user.getId(), dto.getName(), dto.getSlug());
 
@@ -103,7 +103,6 @@ public class OrganizationService {
         }
     }
 
-    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Organization patchOrganizationWithPartialData(String organizationSlug, UpdateOrganizationInfoDto partialData) {
         log.info("patchOrganizationWithPartialData: for organizationSlug={}, with partialData={}", organizationSlug, partialData);
         Organization organization = this.getOrganizationBySlug(organizationSlug);
@@ -140,6 +139,12 @@ public class OrganizationService {
         byte[] newAvatarBytes = Base64.getDecoder().decode(newAvatarBase64.getBytes(StandardCharsets.UTF_8));
         String newAvatarUrl = imageService.saveOrganizationAvatar(newAvatarBytes, organization.getId());
         return organizationDao.updateWithAvatarUrl(organization, newAvatarUrl);
+    }
+
+    public Organization removeOrganizationAvatar(String organizationSlug) {
+        Organization organization = this.getOrganizationBySlug(organizationSlug);
+        imageService.removeOrganizationAvatar(organization.getId(), organization.getOrganizationAvatarUrl());
+        return organizationDao.removeAvatar(organization);
     }
 
 }

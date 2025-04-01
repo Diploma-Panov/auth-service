@@ -51,6 +51,11 @@ public class OrganizationDao {
         return organizationRepository.save(organization);
     }
 
+    public Organization removeAvatar(Organization organization) {
+        organization.setOrganizationAvatarUrl(null);
+        return organizationRepository.save(organization);
+    }
+
     public boolean existsBySlug(String slug) {
         return organizationRepository.existsOrganizationBySlug(slug);
     }
