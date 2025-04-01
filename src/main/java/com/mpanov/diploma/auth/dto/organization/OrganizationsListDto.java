@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
+import java.util.List;
 
 @Data
 @Builder
@@ -21,6 +21,6 @@ public class OrganizationsListDto {
 
     private Integer perPage;
 
-    private Set<OrganizationDto> entries;
+    private List<OrganizationDto> entries;
 
 }

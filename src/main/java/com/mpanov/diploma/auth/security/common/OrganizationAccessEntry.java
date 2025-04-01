@@ -1,7 +1,7 @@
 package com.mpanov.diploma.auth.security.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.mpanov.diploma.MemberRole;
+import com.mpanov.diploma.data.MemberRole;
 import lombok.*;
 
 import java.io.Serial;

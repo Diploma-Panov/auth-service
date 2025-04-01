@@ -1,5 +1,6 @@
 package com.mpanov.diploma.auth.service;
 
+import com.mpanov.diploma.utils.RandomUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,8 @@ public class ImageService {
 
     public String saveOrganizationAvatar(byte[] imageBytes, Long organizationId) {
         log.info("saveOrganizationAvatar: for organizationId={}", organizationId);
-        return "images/organization/" + organizationId + "/avatar.png";
+        String token = RandomUtils.generateRandomAlphabeticalString(10);
+        return "images/organization/" + organizationId + "/" + token + ".png";
     }
 
 }

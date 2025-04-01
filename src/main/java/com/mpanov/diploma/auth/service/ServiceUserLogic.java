@@ -1,6 +1,5 @@
 package com.mpanov.diploma.auth.service;
 
-import com.mpanov.diploma.MemberRole;
 import com.mpanov.diploma.auth.dao.ServiceUserDao;
 import com.mpanov.diploma.auth.dto.common.TokenResponseDto;
 import com.mpanov.diploma.auth.dto.user.UserSignupDto;
@@ -13,6 +12,7 @@ import com.mpanov.diploma.auth.model.common.UserSystemRole;
 import com.mpanov.diploma.auth.security.*;
 import com.mpanov.diploma.auth.security.common.JwtUserSubject;
 import com.mpanov.diploma.auth.security.common.OrganizationAccessEntry;
+import com.mpanov.diploma.data.MemberRole;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

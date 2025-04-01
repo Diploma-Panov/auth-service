@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -18,5 +19,7 @@ public interface OrganizationMemberRepository extends JpaRepository<Organization
     boolean existsByMemberUserIdAndOrganizationSlug(Long memberUserId, String organizationSlug);
 
     int countAllOrganizationIdsByMemberUserId(Long memberUserId);
+
+    Optional<OrganizationMember> findByMemberUserIdAndOrganizationSlug(Long memberUserId, String organizationSlug);
 
 }

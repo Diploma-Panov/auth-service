@@ -1,14 +1,15 @@
 package com.mpanov.diploma.auth.service;
 
-import com.mpanov.diploma.MemberRole;
 import com.mpanov.diploma.auth.dao.OrganizationDao;
 import com.mpanov.diploma.auth.dto.organization.CreateOrganizationDto;
+import com.mpanov.diploma.auth.dto.organization.UpdateOrganizationInfoDto;
 import com.mpanov.diploma.auth.exception.common.DuplicateException;
 import com.mpanov.diploma.auth.exception.common.NotFoundException;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.OrganizationMember;
 import com.mpanov.diploma.auth.model.ServiceUser;
 import com.mpanov.diploma.auth.model.common.OrganizationType;
+import com.mpanov.diploma.data.MemberRole;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -100,6 +101,45 @@ public class OrganizationService {
         if (organizationDao.existsBySlug(slug)) {
             throw new DuplicateException(Organization.class, "slug", slug);
         }
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public Organization patchOrganizationWithPartialData(String organizationSlug, UpdateOrganizationInfoDto partialData) {
+        log.info("patchOrganizationWithPartialData: for organizationSlug={}, with partialData={}", organizationSlug, partialData);
+        Organization organization = this.getOrganizationBySlug(organizationSlug);
+
+        String newSlug = partialData.getNewSlug();
+        String newName = partialData.getNewName();
+        String newDescription = partialData.getNewDescription();
+        String newUrl = partialData.getNewUrl();
+
+        if (newSlug != null) {
+            if (!StringUtils.equals(organizationSlug, newSlug)) {
+                assertSlugIsUnique(partialData.getNewSlug());
+            }
+            organization.setSlug(newSlug);
+        }
+
+        if (newName != null) {
+            organization.setName(newName);
+        }
+
+        if (newDescription != null) {
+            organization.setDescription(newDescription);
+        }
+
+        if (newUrl != null) {
+            organization.setSiteUrl(newUrl);
+        }
+
+        return organizationDao.syncOrganization(organization);
+    }
+
+    public Organization updateOrganizationAvatar(String organizationSlug, String newAvatarBase64) {
+        Organization organization = this.getOrganizationBySlug(organizationSlug);
+        byte[] newAvatarBytes = Base64.getDecoder().decode(newAvatarBase64.getBytes(StandardCharsets.UTF_8));
+        String newAvatarUrl = imageService.saveOrganizationAvatar(newAvatarBytes, organization.getId());
+        return organizationDao.updateWithAvatarUrl(organization, newAvatarUrl);
     }
 
 }

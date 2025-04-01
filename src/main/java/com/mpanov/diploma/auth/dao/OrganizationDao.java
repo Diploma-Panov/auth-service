@@ -54,4 +54,8 @@ public class OrganizationDao {
     public boolean existsBySlug(String slug) {
         return organizationRepository.existsOrganizationBySlug(slug);
     }
+
+    public Organization syncOrganization(Organization organization) {
+        return organizationRepository.save(organization);
+    }
 }

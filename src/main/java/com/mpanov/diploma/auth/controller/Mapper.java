@@ -8,9 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class Mapper {
@@ -38,7 +37,7 @@ public class Mapper {
             int page,
             int quantity
     ) {
-        Set<OrganizationDto> entries = new HashSet<>();
+        List<OrganizationDto> entries = new ArrayList<>();
         for (Organization organization : organizations) {
             entries.add(this.toOrganizationDto(organization));
         }

@@ -2,12 +2,17 @@ package com.mpanov.diploma.auth.security.common;
 
 import com.mpanov.diploma.auth.dao.OrganizationMemberDao;
 import com.mpanov.diploma.auth.dao.ServiceUserDao;
+import com.mpanov.diploma.auth.model.OrganizationMember;
 import com.mpanov.diploma.auth.model.ServiceUser;
+import com.mpanov.diploma.data.MemberPermission;
+import com.mpanov.diploma.data.MemberRole;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -27,12 +32,25 @@ public class ActorContext {
         return serviceUserDao.findServiceUserByIdThrowable(userId);
     }
 
-    public void assertHasAccessToOrganization(Long userId, String organizationSlug) {
+    public void assertHasAccessToOrganization(String organizationSlug, MemberPermission permission) {
+        Long userId = this.getAuthenticatedUser().getId();
         boolean exists = organizationMemberDao.existsByMemberUserIdAndOrganizationSlug(userId, organizationSlug);
         if (!exists) {
             log.warn("User {} does not have access to organization {}", userId, organizationSlug);
             throw new AuthorizationDeniedException("User " + userId + " does not have access to organization " + organizationSlug);
         }
+
+        OrganizationMember member = organizationMemberDao.getOrganizationMemberByMemberUserIdAndOrganizationSlugThrowable(userId, organizationSlug);
+        Set<MemberRole> roles = member.getRoles();
+        for (MemberRole role : roles) {
+            if (role.getPermissions().contains(permission)) {
+                return;
+            }
+        }
+
+        throw new AuthorizationDeniedException(
+                "User " + userId + " does not have required permission " + permission + " for organization " + organizationSlug
+        );
     }
 
 }

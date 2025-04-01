@@ -1,6 +1,6 @@
 package com.mpanov.diploma.auth.model;
 
-import com.mpanov.diploma.MemberRole;
+import com.mpanov.diploma.data.MemberRole;
 import io.hypersistence.utils.hibernate.type.array.LongArrayType;
 import jakarta.persistence.*;
 import lombok.*;
