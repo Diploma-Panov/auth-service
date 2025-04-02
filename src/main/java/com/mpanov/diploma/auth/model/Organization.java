@@ -57,12 +57,7 @@ public class Organization {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private OrganizationType type;
 
-    @ManyToOne(
-            fetch = FetchType.LAZY,
-            optional = false,
-            cascade = CascadeType.ALL,
-            targetEntity = ServiceUser.class
-    )
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "creator_user_id",
             foreignKey = @ForeignKey(name = "org_owner_user_fk")
@@ -84,6 +79,19 @@ public class Organization {
     public void addMember(OrganizationMember organizationMember) {
         organizationMember.setOrganization(this);
         this.organizationMembers.add(organizationMember);
+    }
+
+    public void removeMember(OrganizationMember organizationMember) {
+        organizationMember.setOrganization(null);
+        this.organizationMembers.remove(organizationMember);
+    }
+
+    public void detach() {
+        this.creatorUser.removeOrganization(this);
+        for (OrganizationMember member : this.organizationMembers) {
+            member.detach();
+        }
+        this.setOrganizationMembers(null);
     }
 
 }

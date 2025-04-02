@@ -1,11 +1,15 @@
 package com.mpanov.diploma.auth.controller;
 
 import com.mpanov.diploma.auth.dto.common.AbstractResponseDto;
+import com.mpanov.diploma.auth.dto.common.TokenResponseDto;
 import com.mpanov.diploma.auth.dto.organization.*;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.ServiceUser;
+import com.mpanov.diploma.auth.security.JwtPayloadService;
 import com.mpanov.diploma.auth.security.common.ActorContext;
+import com.mpanov.diploma.auth.security.common.JwtUserSubject;
 import com.mpanov.diploma.auth.service.OrganizationService;
+import com.mpanov.diploma.auth.service.ServiceUserLogic;
 import com.mpanov.diploma.data.MemberPermission;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -30,6 +34,10 @@ public class OrganizationController {
     private final ActorContext actorContext;
 
     private final Mapper mapper;
+
+    private final ServiceUserLogic serviceUserLogic;
+
+    private final JwtPayloadService jwtPayloadService;
 
     @GetMapping
     public AbstractResponseDto<OrganizationsListDto> getUserOrganizations(
@@ -73,7 +81,7 @@ public class OrganizationController {
         log.info("Requested GET /user/organizations/{}", slug);
         actorContext.assertHasAccessToOrganization(slug, MemberPermission.BASIC_VIEW);
 
-        Organization organization = organizationService.getOrganizationBySlug(slug);
+        Organization organization = organizationService.getOrganizationBySlugThrowable(slug);
 
         OrganizationDto rv = mapper.toOrganizationDto(organization);
 
@@ -82,13 +90,16 @@ public class OrganizationController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AbstractResponseDto<OrganizationDto> createNewOrganization(
+    public AbstractResponseDto<TokenResponseDto> createNewOrganization(
             @Valid @RequestBody CreateOrganizationDto createOrganizationDto
     ) {
         ServiceUser authenticatedUser = actorContext.getAuthenticatedUser();
         log.info("Requested POST /user/organizations for userId={}, dto={}", authenticatedUser.getId(), createOrganizationDto.toString());
-        Organization newOrganization = organizationService.createOrganizationByUser(authenticatedUser, createOrganizationDto);
-        OrganizationDto rv = mapper.toOrganizationDto(newOrganization);
+        organizationService.createOrganizationByUser(authenticatedUser, createOrganizationDto);
+
+        JwtUserSubject newSubject = serviceUserLogic.loginWithUserIdBySystem(authenticatedUser.getId());
+
+        TokenResponseDto rv = jwtPayloadService.getTokensForUserSubject(newSubject);
         return new AbstractResponseDto<>(rv);
     }
 
@@ -131,4 +142,19 @@ public class OrganizationController {
         return new AbstractResponseDto<>(rv);
     }
 
+    @DeleteMapping("/{slug}")
+    public AbstractResponseDto<TokenResponseDto> deleteOrganization(
+            @PathVariable String slug
+    ) {
+        Long userId = actorContext.getAuthenticatedUser().getId();
+        log.info("Requested DELETE /user/organizations/{} by userId={}", slug, userId);
+        actorContext.assertHasAccessToOrganization(slug, MemberPermission.FULL_ACCESS);
+
+        organizationService.removeOrganization(slug);
+
+        JwtUserSubject newSubject = serviceUserLogic.loginWithUserIdBySystem(userId);
+
+        TokenResponseDto rv = jwtPayloadService.getTokensForUserSubject(newSubject);
+        return new AbstractResponseDto<>(rv);
+    }
 }

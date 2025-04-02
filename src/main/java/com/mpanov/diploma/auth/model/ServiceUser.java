@@ -75,8 +75,7 @@ public class ServiceUser {
             mappedBy = "creatorUser",
             targetEntity = Organization.class,
             cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY,
-            orphanRemoval = true
+            fetch = FetchType.LAZY
     )
     @Builder.Default
     @ToString.Exclude
@@ -101,6 +100,16 @@ public class ServiceUser {
     public void addOrganizationMember(OrganizationMember organizationMember) {
         this.organizationMembers.add(organizationMember);
         organizationMember.setMemberUser(this);
+    }
+
+    public void removeOrganization(Organization organization) {
+        organization.setCreatorUser(null);
+        this.organizations.remove(organization);
+    }
+
+    public void removeMember(OrganizationMember organizationMember) {
+        organizationMember.setMemberUser(null);
+        this.organizationMembers.remove(organizationMember);
     }
 
 }

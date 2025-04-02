@@ -44,4 +44,9 @@ public class ServiceUserDao {
         serviceUserRepository.updateLastLoginDate(userId);
     }
 
+    public ServiceUser updateWithProfilePictureUrl(ServiceUser user, String url) {
+        user.setProfilePictureUrl(url);
+        return serviceUserRepository.save(user);
+    }
+
 }

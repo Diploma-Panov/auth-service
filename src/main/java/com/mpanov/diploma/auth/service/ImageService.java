@@ -21,4 +21,10 @@ public class ImageService {
 
     }
 
+    public String saveUserProfilePicture(Long userId, byte[] imageBytes) {
+        log.info("saveUserProfilePicture: for userId={}", userId);
+        String token = RandomUtils.generateRandomAlphabeticalString(10);
+        return "images/user/" + userId + "/" + token + ".png";
+    }
+
 }

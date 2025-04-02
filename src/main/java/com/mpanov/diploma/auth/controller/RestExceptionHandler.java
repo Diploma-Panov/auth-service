@@ -3,6 +3,8 @@ package com.mpanov.diploma.auth.controller;
 import com.mpanov.diploma.auth.dto.common.ErrorResponseDto;
 import com.mpanov.diploma.auth.dto.common.ErrorResponseElement;
 import com.mpanov.diploma.auth.dto.common.ServiceErrorType;
+import com.mpanov.diploma.auth.exception.OrganizationActionNotAllowed;
+import com.mpanov.diploma.auth.exception.UserSignupException;
 import com.mpanov.diploma.auth.exception.common.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,15 @@ public class RestExceptionHandler {
 
     @Value("${platform.errors.hide-message}")
     private Boolean hideMessage;
+
+    @ExceptionHandler(UserSignupException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponseDto handleUserSignupException(HttpServletRequest req, UserSignupException e) {
+        logError(req, e);
+        ServiceErrorType errorType = ServiceErrorType.fromSignupErrorType(e.getErrorType());
+        return this.composeErrorResponseDto(e, errorType);
+    }
 
     @ExceptionHandler(AuthenticationException.class)
     @ResponseBody
@@ -72,6 +83,14 @@ public class RestExceptionHandler {
     public ErrorResponseDto handleDuplicateException(HttpServletRequest req, DuplicateException e) {
         logError(req, e);
         return composeErrorResponseDto(e, ServiceErrorType.ENTITY_ALREADY_EXISTS);
+    }
+
+    @ExceptionHandler(OrganizationActionNotAllowed.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponseDto handleOrganizationActionNotAllowed(HttpServletRequest req, OrganizationActionNotAllowed e) {
+        logError(req, e);
+        return composeErrorResponseDto(e, ServiceErrorType.ORGANIZATION_ACTION_NOT_ALLOWED);
     }
 
     @ExceptionHandler(TokenFormatException.class)

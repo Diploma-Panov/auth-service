@@ -10,12 +10,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.Set;
 
 @Service
 @AllArgsConstructor
+@Transactional(isolation = Isolation.READ_COMMITTED)
 public class OrganizationDao {
 
     private final OrganizationRepository organizationRepository;
@@ -62,5 +65,10 @@ public class OrganizationDao {
 
     public Organization syncOrganization(Organization organization) {
         return organizationRepository.save(organization);
+    }
+
+    public void removeOrganization(Organization organization) {
+        organization.detach();
+        organizationRepository.delete(organization);
     }
 }

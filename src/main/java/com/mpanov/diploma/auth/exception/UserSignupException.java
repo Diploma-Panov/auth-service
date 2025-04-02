@@ -1,10 +1,12 @@
 package com.mpanov.diploma.auth.exception;
 
 import com.mpanov.diploma.auth.model.SignupErrorType;
+import lombok.Getter;
 
+@Getter
 public class UserSignupException extends RuntimeException {
 
-    private SignupErrorType errorType;
+    private final SignupErrorType errorType;
 
     public UserSignupException(SignupErrorType errorType, String message) {
         super(message);

@@ -3,6 +3,7 @@ package com.mpanov.diploma.auth.service;
 import com.mpanov.diploma.auth.dao.OrganizationDao;
 import com.mpanov.diploma.auth.dto.organization.CreateOrganizationDto;
 import com.mpanov.diploma.auth.dto.organization.UpdateOrganizationInfoDto;
+import com.mpanov.diploma.auth.exception.OrganizationActionNotAllowed;
 import com.mpanov.diploma.auth.exception.common.DuplicateException;
 import com.mpanov.diploma.auth.exception.common.NotFoundException;
 import com.mpanov.diploma.auth.model.Organization;
@@ -50,13 +51,13 @@ public class OrganizationService {
         return organizationDao.countAllOrganizationsByMemberUserId(userId);
     }
 
-    public Organization getOrganizationBySlug(String slug) {
+    public Organization getOrganizationBySlugThrowable(String slug) {
         log.info("getOrganizationBySlug: for slug={}", slug);
         return organizationDao.findOrganizationBySlugOptional(slug)
                 .orElseThrow(() -> new NotFoundException(Organization.class, "slug", slug));
     }
 
-    public Organization createOrganizationByUser(ServiceUser user, CreateOrganizationDto dto) {
+    public void createOrganizationByUser(ServiceUser user, CreateOrganizationDto dto) {
         log.info("createOrganizationByUser: for user={}, organizationName={}, slug={}", user.getId(), dto.getName(), dto.getSlug());
 
         String slug = dto.getSlug();
@@ -85,7 +86,7 @@ public class OrganizationService {
 
         String avatarBase64 = dto.getAvatarBase64();
         if (StringUtils.isBlank(avatarBase64)) {
-            return createdOrganization;
+            return;
         }
 
         Long createdOrganizationId = createdOrganization.getId();
@@ -93,7 +94,7 @@ public class OrganizationService {
         byte[] avatarBytes = Base64.getDecoder().decode(dto.getAvatarBase64().getBytes(StandardCharsets.UTF_8));
         String avatarUrl = imageService.saveOrganizationAvatar(avatarBytes, createdOrganizationId);
 
-        return organizationDao.updateWithAvatarUrl(createdOrganization, avatarUrl);
+        organizationDao.updateWithAvatarUrl(createdOrganization, avatarUrl);
     }
 
     private void assertSlugIsUnique(String slug) {
@@ -105,7 +106,7 @@ public class OrganizationService {
 
     public Organization patchOrganizationWithPartialData(String organizationSlug, UpdateOrganizationInfoDto partialData) {
         log.info("patchOrganizationWithPartialData: for organizationSlug={}, with partialData={}", organizationSlug, partialData);
-        Organization organization = this.getOrganizationBySlug(organizationSlug);
+        Organization organization = this.getOrganizationBySlugThrowable(organizationSlug);
 
         String newSlug = partialData.getNewSlug();
         String newName = partialData.getNewName();
@@ -135,16 +136,26 @@ public class OrganizationService {
     }
 
     public Organization updateOrganizationAvatar(String organizationSlug, String newAvatarBase64) {
-        Organization organization = this.getOrganizationBySlug(organizationSlug);
+        log.info("updateOrganizationAvatar: for slug={}", organizationSlug);
+        Organization organization = this.getOrganizationBySlugThrowable(organizationSlug);
         byte[] newAvatarBytes = Base64.getDecoder().decode(newAvatarBase64.getBytes(StandardCharsets.UTF_8));
         String newAvatarUrl = imageService.saveOrganizationAvatar(newAvatarBytes, organization.getId());
         return organizationDao.updateWithAvatarUrl(organization, newAvatarUrl);
     }
 
     public Organization removeOrganizationAvatar(String organizationSlug) {
-        Organization organization = this.getOrganizationBySlug(organizationSlug);
+        log.info("removeOrganizationAvatar: for slug={}", organizationSlug);
+        Organization organization = this.getOrganizationBySlugThrowable(organizationSlug);
         imageService.removeOrganizationAvatar(organization.getId(), organization.getOrganizationAvatarUrl());
         return organizationDao.removeAvatar(organization);
     }
 
+    public void removeOrganization(String slug) {
+        log.info("removeOrganization: for slug={}", slug);
+        Organization organization = this.getOrganizationBySlugThrowable(slug);
+        if (organization.getType() == OrganizationType.PERMANENT) {
+            throw new OrganizationActionNotAllowed("Cannot remove a permanent organization " + slug);
+        }
+        organizationDao.removeOrganization(organization);
+    }
 }

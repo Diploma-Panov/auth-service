@@ -29,7 +29,7 @@ public class UserSignupDto {
     private String companyName;
 
     @Length(max = 512)
-    private String profilePictureUrl;
+    private String profilePictureBase64;
 
     @NotNull
     private OrganizationScope registrationScope;

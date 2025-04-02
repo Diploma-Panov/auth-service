@@ -20,12 +20,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
 
 @Slf4j
 @Service
 @AllArgsConstructor
+@Transactional(isolation = Isolation.READ_COMMITTED)
 public class ServiceUserLogic {
 
     private final PasswordService passwordService;
@@ -34,8 +37,10 @@ public class ServiceUserLogic {
 
     private final JwtPayloadService jwtPayloadService;
 
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    private final ImageService imageService;
+
     public TokenResponseDto signupNewUser(UserSignupDto dto) {
+        log.info("signupNewUser: username={}, name={}", dto.getUsername(), dto.getFirstName() + " " + dto.getLastName());
         passwordService.assertPasswordCompliant(dto.getPassword());
         String passwordHash = passwordService.encryptPassword(dto.getPassword());
         String normalizedEmail = StringUtils.normalizeSpace(dto.getUsername()).toLowerCase();
@@ -47,7 +52,6 @@ public class ServiceUserLogic {
                 .organizationScope(dto.getRegistrationScope())
                 .siteUrl(dto.getSiteUrl())
                 .description(dto.getFirstName() + "'s Personal Organization")
-                .organizationAvatarUrl(dto.getProfilePictureUrl())
                 .type(OrganizationType.PERMANENT)
                 .build();
 
@@ -65,7 +69,6 @@ public class ServiceUserLogic {
                 .companyName(dto.getCompanyName())
                 .email(normalizedEmail)
                 .passwordHash(passwordHash)
-                .profilePictureUrl(dto.getProfilePictureUrl())
                 .systemRole(UserSystemRole.USER)
                 .build();
 
@@ -75,6 +78,13 @@ public class ServiceUserLogic {
                 permanentOrganization,
                 member
         );
+
+        String pictureBase64 = dto.getProfilePictureBase64();
+        if (StringUtils.isNotBlank(pictureBase64)) {
+            byte[] profilePictureBytes = Base64.getDecoder().decode(pictureBase64.getBytes(StandardCharsets.UTF_8));
+            String profilePictureUrl = imageService.saveUserProfilePicture(user.getId(), profilePictureBytes);
+            user = serviceUserDao.updateWithProfilePictureUrl(user, profilePictureUrl);
+        }
 
         // Create auth subject for new user
         JwtUserSubject subject = JwtUserSubject.builder()
@@ -90,45 +100,49 @@ public class ServiceUserLogic {
         return jwtPayloadService.getTokensForUserSubject(subject);
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public UserAuthentication login(String username, String password) {
+        log.info("login: attempting for username {}", username);
         ServiceUser user = serviceUserDao.findServiceUserByEmailThrowable(username);
         if (!passwordService.passwordMatches(password, user.getPasswordHash())) {
             throw new LoginException("Incorrect password");
         }
-        JwtUserSubject subject = JwtUserSubject.builder()
-                .userId(user.getId())
-                .username(user.getEmail())
-                .userSystemRole(user.getSystemRole())
-                .loginType(LoginType.USER_LOGIN)
-                .firstname(user.getFirstname())
-                .lastname(user.getLastname())
-                .organizations(this.mapOrganizationAccessEntries(user))
-                .build();
+        JwtUserSubject subject = this.buildSubjectForUser(user, LoginType.USER_LOGIN);
 
         serviceUserDao.updateLoginDate(user.getId());
 
         return new UserAuthentication(subject);
     }
 
+    public JwtUserSubject loginWithUserIdBySystem(Long userId) {
+        log.info("loginWithUserIdBySystem: for userId={}", userId);
+        ServiceUser user = serviceUserDao.findServiceUserByIdThrowable(userId);
+        return this.buildSubjectForUser(user, LoginType.SYSTEM_LOGIN);
+    }
+
     public JwtUserSubject refreshSubject(JwtUserSubject subject) {
+        log.info("refreshSubject: for userId={}", subject.getUserId());
         Long userId = subject.getUserId();
 
         ServiceUser user = serviceUserDao.findServiceUserByIdThrowable(userId);
 
+        return this.buildSubjectForUser(user, LoginType.USER_LOGIN);
+    }
+
+    public void changeUserSystemRole(Long userId, UserSystemRole newRole) {
+        log.info("changeUserSystemRole: for userId={}, newRole={}", userId, newRole);
+        serviceUserDao.updateUserSystemRole(userId, newRole);
+    }
+
+    private JwtUserSubject buildSubjectForUser(ServiceUser user, LoginType loginType) {
         return JwtUserSubject.builder()
-                .userId(userId)
+                .userId(user.getId())
                 .username(user.getEmail())
                 .userSystemRole(user.getSystemRole())
-                .loginType(LoginType.USER_LOGIN)
+                .loginType(loginType)
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
                 .organizations(this.mapOrganizationAccessEntries(user))
                 .build();
-    }
-
-    public void changeUserSystemRole(Long userId, UserSystemRole newRole) {
-        serviceUserDao.updateUserSystemRole(userId, newRole);
     }
 
     private Set<OrganizationAccessEntry> mapOrganizationAccessEntries(ServiceUser user) {

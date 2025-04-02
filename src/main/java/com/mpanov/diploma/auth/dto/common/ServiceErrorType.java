@@ -11,7 +11,8 @@ public enum ServiceErrorType {
     ACCESS_DENIED,
     TOKEN_GENERATION_FAILED,
     EMAIL_IS_INVALID,
-    ENTITY_ALREADY_EXISTS;
+    ENTITY_ALREADY_EXISTS,
+    ORGANIZATION_ACTION_NOT_ALLOWED,;
 
    public static ServiceErrorType fromSignupErrorType(SignupErrorType signupErrorType) {
        return switch (signupErrorType) {

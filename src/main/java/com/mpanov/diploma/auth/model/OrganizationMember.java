@@ -30,8 +30,6 @@ public class OrganizationMember {
 
     @ManyToOne(
             fetch = FetchType.LAZY,
-            optional = false,
-            cascade = CascadeType.ALL,
             targetEntity = ServiceUser.class
     )
     @JoinColumn(
@@ -44,8 +42,6 @@ public class OrganizationMember {
 
     @ManyToOne(
             fetch = FetchType.EAGER,
-            optional = false,
-            cascade = CascadeType.ALL,
             targetEntity = Organization.class
     )
     @JoinColumn(
@@ -68,5 +64,10 @@ public class OrganizationMember {
     @Column(nullable = false)
     @EqualsAndHashCode.Include
     private Boolean allowedAllUrls;
+
+    public void detach() {
+        this.getMemberUser().removeMember(this);
+        this.getOrganization().removeMember(this);
+    }
 
 }
