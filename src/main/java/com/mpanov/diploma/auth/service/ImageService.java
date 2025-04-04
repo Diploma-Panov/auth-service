@@ -27,4 +27,8 @@ public class ImageService {
         return "images/user/" + userId + "/" + token + ".png";
     }
 
+    public void removeUserProfilePicture(Long userId, String url) {
+        log.info("removeUserProfilePicture: for userId={} and url={}", userId, url);
+    }
+
 }

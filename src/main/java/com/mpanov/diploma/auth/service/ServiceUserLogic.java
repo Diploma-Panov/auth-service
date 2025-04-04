@@ -199,7 +199,9 @@ public class ServiceUserLogic {
     }
 
     public ServiceUser removeProfilePicture(ServiceUser user) {
-        log.info("removeProfilePicture: for userId={}", user.getId());
+        Long userId = user.getId();
+        log.info("removeProfilePicture: for userId={}", userId);
+        imageService.removeUserProfilePicture(userId, user.getProfilePictureUrl());
         return serviceUserDao.updateWithProfilePictureUrl(user, null);
     }
 
