@@ -5,6 +5,7 @@ import com.mpanov.diploma.auth.dao.OrganizationMemberDao;
 import com.mpanov.diploma.auth.dao.ServiceUserDao;
 import com.mpanov.diploma.auth.dto.organization.members.InviteMemberDto;
 import com.mpanov.diploma.auth.dto.organization.members.UpdateMemberRolesDto;
+import com.mpanov.diploma.auth.dto.organization.members.UpdateMemberUrlsDto;
 import com.mpanov.diploma.auth.dto.user.UserSignupDto;
 import com.mpanov.diploma.auth.exception.OrganizationActionNotAllowed;
 import com.mpanov.diploma.auth.exception.common.NotFoundException;
@@ -23,10 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -98,10 +96,14 @@ public class OrganizationMembersService {
         OrganizationMember actorMember = this.getActorMemberForOrganizationSlug(actorUser, organizationSlug);
         Set<MemberRole> actorMemberRoles = actorMember.getRoles();
 
-        OrganizationMember member = organizationMemberDao.getOrganizationMemberByMemberId(memberId);
+        OrganizationMember member = organizationMemberDao.getOrganizationMemberByIdThrowable(memberId);
         Set<MemberRole> memberRoles = member.getRoles();
 
         Set<MemberRole> newRoles = dto.getNewRoles();
+
+        if (Objects.equals(actorMember.getId(), memberId)) {
+            throw new OrganizationActionNotAllowed("Organization members are not allowed to update their own roles");
+        }
 
         if (newRoles.contains(MemberRole.ORGANIZATION_OWNER)) {
             throw new OrganizationActionNotAllowed("Cannot set ORGANIZATION_OWNER role to team member");
@@ -119,7 +121,7 @@ public class OrganizationMembersService {
             throw new OrganizationActionNotAllowed("Actor member does not have any member management role");
         }
 
-        Set<MemberRole> newRolesWithoutCurrent = this.subtract(newRoles, memberRoles);
+        Set<MemberRole> newRolesWithoutCurrent = this.subtractRoles(newRoles, memberRoles);
         if (
                 !actorMemberRoles.containsAll(newRolesWithoutCurrent) &&
                         !actorMemberRoles.contains(MemberRole.ORGANIZATION_OWNER) &&
@@ -136,10 +138,43 @@ public class OrganizationMembersService {
         organizationMemberDao.updateMemberWithNewRoles(member, newRoles);
     }
 
-    private Set<MemberRole> subtract(Set<MemberRole> s1, Set<MemberRole> s2) {
+    public void updateMemberUrls(
+            String organizationSlug,
+            Long memberId,
+            ServiceUser actorUser,
+            UpdateMemberUrlsDto dto
+    ) {
+        log.info("updateMemberUrls: memberId={}, dto={}", memberId, dto);
+
+        OrganizationMember actorMember = this.getActorMemberForOrganizationSlug(actorUser, organizationSlug);
+        OrganizationMember member = organizationMemberDao.getOrganizationMemberByIdThrowable(memberId);
+
+        if (Objects.equals(member.getMemberUser().getId(), actorUser.getId())) {
+            throw new OrganizationActionNotAllowed("Organization members are not allowed to update their own URLs");
+        }
+
+        Set<Long> newUrls = dto.getNewUrlsIds();
+        Set<Long> memberUrls = new HashSet<>(Arrays.asList(member.getMemberUrls()));
+        Set<Long> actorMemberUrls = new HashSet<>(Arrays.asList(actorMember.getMemberUrls()));
+        Set<Long> newSitesWithoutCurrent = this.subtractLongs(newUrls, memberUrls);
+
+        if (!actorMember.getAllowedAllUrls() && !actorMemberUrls.containsAll(newSitesWithoutCurrent)) {
+            throw new OrganizationActionNotAllowed("Organization members cannot grant access to URLs they have no access to");
+        }
+
+        organizationMemberDao.updateMemberWithUrls(member, dto.getNewUrlsIds(), dto.getAllowedAllUrls());
+    }
+
+    private Set<MemberRole> subtractRoles(Set<MemberRole> s1, Set<MemberRole> s2) {
         Set<MemberRole> rv = new HashSet<>(s1);
         rv.removeAll(s2);
         rv.remove(MemberRole.ORGANIZATION_MEMBER);
+        return rv;
+    }
+
+    private Set<Long> subtractLongs(Set<Long> s1, Set<Long> s2) {
+        Set<Long> rv = new HashSet<>(s1);
+        rv.removeAll(s2);
         return rv;
     }
 
@@ -160,5 +195,4 @@ public class OrganizationMembersService {
         }
         return member;
     }
-
 }

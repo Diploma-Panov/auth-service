@@ -29,7 +29,7 @@ public class OrganizationMemberDao {
                 .orElseThrow(() -> new NotFoundException(OrganizationMember.class, "memberUserId,organizationSlug", memberUserId + "," + organizationSlug));
     }
 
-    public OrganizationMember getOrganizationMemberByMemberId(Long memberId) {
+    public OrganizationMember getOrganizationMemberByIdThrowable(Long memberId) {
         return organizationMemberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException(OrganizationMember.class, "id", memberId.toString()));
     }
@@ -58,5 +58,12 @@ public class OrganizationMemberDao {
         if (exists) {
             throw new DuplicateException(OrganizationMember.class, "memberUser.email,organization.slug", email + "," + slug);
         }
+    }
+
+    public void updateMemberWithUrls(OrganizationMember member, Set<Long> urlsIds, boolean allowedAllUrls) {
+        Long[] urlsIdArray = urlsIds.toArray(new Long[0]);
+        member.setMemberUrls(urlsIdArray);
+        member.setAllowedAllUrls(allowedAllUrls);
+        organizationMemberRepository.save(member);
     }
 }

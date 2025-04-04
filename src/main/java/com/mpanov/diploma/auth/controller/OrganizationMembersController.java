@@ -5,6 +5,7 @@ import com.mpanov.diploma.auth.dto.common.MessageResponseDto;
 import com.mpanov.diploma.auth.dto.organization.members.InviteMemberDto;
 import com.mpanov.diploma.auth.dto.organization.members.OrganizationMembersListDto;
 import com.mpanov.diploma.auth.dto.organization.members.UpdateMemberRolesDto;
+import com.mpanov.diploma.auth.dto.organization.members.UpdateMemberUrlsDto;
 import com.mpanov.diploma.auth.model.OrganizationMember;
 import com.mpanov.diploma.auth.model.ServiceUser;
 import com.mpanov.diploma.auth.security.common.ActorContext;
@@ -101,5 +102,21 @@ public class OrganizationMembersController {
         return new AbstractResponseDto<>(MessageResponseDto.success());
     }
 
+    @PutMapping("/{memberId}/urls")
+    public AbstractResponseDto<MessageResponseDto> updateOrganizationMemberUrls(
+            @PathVariable String slug,
+            @PathVariable Long memberId,
+            @Valid @RequestBody UpdateMemberUrlsDto dto
+    ) {
+        log.info("Requested PUT /user/organizations/{}/members/{}/urls, with dto={}", slug, memberId, dto);
+
+        actorContext.assertHasAccessToOrganization(slug, MemberPermission.MANAGE_URLS);
+
+        ServiceUser actorUser = actorContext.getAuthenticatedUser();
+
+        organizationMembersService.updateMemberUrls(slug, memberId, actorUser, dto);
+
+        return new AbstractResponseDto<>(MessageResponseDto.success());
+    }
 
 }
