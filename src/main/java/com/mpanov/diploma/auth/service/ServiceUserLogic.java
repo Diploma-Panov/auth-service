@@ -43,6 +43,10 @@ public class ServiceUserLogic {
 
     private final ImageService imageService;
 
+    public ServiceUser getServiceUserByIdThrowable(Long id) {
+        return serviceUserDao.getServiceUserByIdThrowable(id);
+    }
+
     public TokenResponseDto signupNewUser(UserSignupDto dto) {
         ServiceUser user = this.signupNewUserInternal(dto);
 
@@ -187,6 +191,19 @@ public class ServiceUserLogic {
         user.setCompanyName(dto.getNewCompanyName());
 
         return serviceUserDao.syncInfo(user);
+    }
+
+    public ServiceUser updateProfilePicture(ServiceUser user, String newProfilePictureBase64) {
+        Long userId = user.getId();
+        log.info("updateProfilePicture: for userId={}", userId);
+        byte[] profilePictureBytes = Base64.getDecoder().decode(newProfilePictureBase64.getBytes(StandardCharsets.UTF_8));
+        String profilePictureUrl = imageService.saveUserProfilePicture(userId, profilePictureBytes);
+        return serviceUserDao.updateWithProfilePictureUrl(user, profilePictureUrl);
+    }
+
+    public ServiceUser removeProfilePicture(ServiceUser user) {
+        log.info("removeProfilePicture: for userId={}", user.getId());
+        return serviceUserDao.updateWithProfilePictureUrl(user, null);
     }
 
     private JwtUserSubject buildSubjectForUser(ServiceUser user, LoginType loginType) {

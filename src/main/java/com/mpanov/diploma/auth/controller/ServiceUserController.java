@@ -1,6 +1,5 @@
 package com.mpanov.diploma.auth.controller;
 
-import com.mpanov.diploma.auth.dao.ServiceUserDao;
 import com.mpanov.diploma.auth.dto.common.AbstractResponseDto;
 import com.mpanov.diploma.auth.dto.common.TokenResponseDto;
 import com.mpanov.diploma.auth.dto.user.*;
@@ -21,8 +20,6 @@ import static com.mpanov.diploma.auth.config.SecurityConfig.*;
 public class ServiceUserController {
 
     private final ServiceUserLogic serviceUserLogic;
-
-    private final ServiceUserDao serviceUserDao;
 
     private final ActorContext actorContext;
 
@@ -61,7 +58,7 @@ public class ServiceUserController {
     public AbstractResponseDto<UserAdminInfoDto> getUserAdminInfo(@PathVariable Long userId) {
         log.info("Received GET /user/users/{}/info", userId);
 
-        ServiceUser user = serviceUserDao.getServiceUserByIdThrowable(userId);
+        ServiceUser user = serviceUserLogic.getServiceUserByIdThrowable(userId);
 
         UserAdminInfoDto rv = mapper.toUserAdminInfoDto(user);
         return new AbstractResponseDto<>(rv);
@@ -76,6 +73,49 @@ public class ServiceUserController {
 
         ServiceUser updatedUser = serviceUserLogic.updateUserInfoByAdmin(userId, dto);
 
+        UserAdminInfoDto rv = mapper.toUserAdminInfoDto(updatedUser);
+        return new AbstractResponseDto<>(rv);
+    }
+
+    @PutMapping(API_USER + "/profile-picture")
+    public AbstractResponseDto<UserInfoDto> updateProfilePicture(
+            @Valid @RequestBody UpdateUserProfilePictureDto dto
+    ) {
+        ServiceUser actorUser = actorContext.getAuthenticatedUser();
+        log.info("Received PUT /user/profile-picture");
+        ServiceUser user = serviceUserLogic.updateProfilePicture(actorUser, dto.getNewProfilePictureBase64());
+        UserInfoDto rv = mapper.toUserInfoDto(user);
+        return new AbstractResponseDto<>(rv);
+    }
+
+    @PutMapping(API_ADMIN + "/users/{userId}/profile-picture")
+    public AbstractResponseDto<UserAdminInfoDto> updateProfilePictureByAdmin(
+            @PathVariable Long userId,
+            @Valid @RequestBody UpdateUserProfilePictureDto dto
+    ) {
+        log.info("Received PUT /admin/users/{}/profile-picture", userId);
+        ServiceUser user = serviceUserLogic.getServiceUserByIdThrowable(userId);
+        ServiceUser updatedUser = serviceUserLogic.updateProfilePicture(user, dto.getNewProfilePictureBase64());
+        UserAdminInfoDto rv = mapper.toUserAdminInfoDto(updatedUser);
+        return new AbstractResponseDto<>(rv);
+    }
+
+    @DeleteMapping(API_USER + "/profile-picture")
+    public AbstractResponseDto<UserInfoDto> deleteProfilePicture() {
+        log.info("Received DELETE /user/profile-picture");
+        ServiceUser actorUser = actorContext.getAuthenticatedUser();
+        ServiceUser updatedUser = serviceUserLogic.removeProfilePicture(actorUser);
+        UserInfoDto rv = mapper.toUserInfoDto(updatedUser);
+        return new AbstractResponseDto<>(rv);
+    }
+
+    @DeleteMapping(API_ADMIN + "/users/{userId}/profile-picture")
+    public AbstractResponseDto<UserAdminInfoDto> deleteProfilePictureByAdmin(
+            @PathVariable Long userId
+    ) {
+        log.info("Received DELETE /admin/users/{}/profile-picture", userId);
+        ServiceUser user = serviceUserLogic.getServiceUserByIdThrowable(userId);
+        ServiceUser updatedUser = serviceUserLogic.removeProfilePicture(user);
         UserAdminInfoDto rv = mapper.toUserAdminInfoDto(updatedUser);
         return new AbstractResponseDto<>(rv);
     }
