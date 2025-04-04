@@ -23,7 +23,7 @@ public class ServiceUserAdminController {
 
     private final Mapper mapper;
 
-    @GetMapping(API_ADMIN + "/users/{userId}/info")
+    @GetMapping("/info")
     public AbstractResponseDto<UserAdminInfoDto> getUserAdminInfo(@PathVariable Long userId) {
         log.info("Received GET /user/users/{}/info", userId);
 
@@ -33,7 +33,7 @@ public class ServiceUserAdminController {
         return new AbstractResponseDto<>(rv);
     }
 
-    @PatchMapping(API_ADMIN + "/users/{userId}/info")
+    @PatchMapping("/info")
     public AbstractResponseDto<UserAdminInfoDto> updateUserInfoByAdmin(
             @PathVariable Long userId,
             @Valid @RequestBody UpdateUserInfoByAdminDto dto
@@ -46,7 +46,7 @@ public class ServiceUserAdminController {
         return new AbstractResponseDto<>(rv);
     }
 
-    @PutMapping(API_ADMIN + "/users/{userId}/profile-picture")
+    @PutMapping("/profile-picture")
     public AbstractResponseDto<UserAdminInfoDto> updateProfilePictureByAdmin(
             @PathVariable Long userId,
             @Valid @RequestBody UpdateUserProfilePictureDto dto
@@ -58,7 +58,7 @@ public class ServiceUserAdminController {
         return new AbstractResponseDto<>(rv);
     }
 
-    @DeleteMapping(API_ADMIN + "/users/{userId}/profile-picture")
+    @DeleteMapping("/profile-picture")
     public AbstractResponseDto<UserAdminInfoDto> deleteProfilePictureByAdmin(
             @PathVariable Long userId
     ) {
