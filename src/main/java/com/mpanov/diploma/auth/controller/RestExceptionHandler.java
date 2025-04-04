@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -59,6 +60,22 @@ public class RestExceptionHandler {
             type = ServiceErrorType.ACCESS_DENIED;
         }
         return this.composeErrorResponseDto(e, type);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponseDto handleMethodArgumentNotValidException(HttpServletRequest req, MethodArgumentNotValidException e) {
+        logError(req, e);
+        return composeErrorResponseDto(e, ServiceErrorType.FORM_VALIDATION_FAILED);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponseDto handleRuntimeException(HttpServletRequest req, RuntimeException e) {
+        logError(req, e);
+        return composeErrorResponseDto(e, ServiceErrorType.INTERNAL_ERROR);
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)

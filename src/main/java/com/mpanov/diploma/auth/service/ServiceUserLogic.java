@@ -2,6 +2,8 @@ package com.mpanov.diploma.auth.service;
 
 import com.mpanov.diploma.auth.dao.ServiceUserDao;
 import com.mpanov.diploma.auth.dto.common.TokenResponseDto;
+import com.mpanov.diploma.auth.dto.user.UpdateUserInfoByAdminDto;
+import com.mpanov.diploma.auth.dto.user.UpdateUserInfoDto;
 import com.mpanov.diploma.auth.dto.user.UserSignupDto;
 import com.mpanov.diploma.auth.exception.common.LoginException;
 import com.mpanov.diploma.auth.exception.UserSignupException;
@@ -139,6 +141,52 @@ public class ServiceUserLogic {
     public void changeUserSystemRole(Long userId, UserSystemRole newRole) {
         log.info("changeUserSystemRole: for userId={}, newRole={}", userId, newRole);
         serviceUserDao.updateUserSystemRole(userId, newRole);
+    }
+
+    public ServiceUser updateUserInfo(ServiceUser user, UpdateUserInfoDto dto) {
+        log.info("updateUserInfo: for userId={}, dto={}", user.getId(), dto);
+
+        if (StringUtils.isNotBlank(dto.getNewFirstname())) {
+            user.setFirstname(dto.getNewFirstname());
+        }
+
+        if (StringUtils.isNotBlank(dto.getNewLastname())) {
+            user.setLastname(dto.getNewLastname());
+        }
+
+        if (StringUtils.isNotBlank(dto.getNewEmail())) {
+            user.setEmail(dto.getNewEmail());
+        }
+
+        user.setCompanyName(dto.getNewCompanyName());
+
+        return serviceUserDao.syncInfo(user);
+    }
+
+    public ServiceUser updateUserInfoByAdmin(Long userId, UpdateUserInfoByAdminDto dto) {
+        log.info("updateUserInfoByAdmin: for userId={}, dto={}", userId, dto);
+
+        ServiceUser user = serviceUserDao.getServiceUserByIdThrowable(userId);
+
+        if (StringUtils.isNotBlank(dto.getNewFirstname())) {
+            user.setFirstname(dto.getNewFirstname());
+        }
+
+        if (StringUtils.isNotBlank(dto.getNewLastname())) {
+            user.setLastname(dto.getNewLastname());
+        }
+
+        if (dto.getNewRole() != null) {
+            user.setSystemRole(dto.getNewRole());
+        }
+
+        if (StringUtils.isNotBlank(dto.getNewEmail())) {
+            user.setEmail(dto.getNewEmail());
+        }
+
+        user.setCompanyName(dto.getNewCompanyName());
+
+        return serviceUserDao.syncInfo(user);
     }
 
     private JwtUserSubject buildSubjectForUser(ServiceUser user, LoginType loginType) {

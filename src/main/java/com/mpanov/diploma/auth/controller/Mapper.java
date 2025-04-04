@@ -4,6 +4,8 @@ import com.mpanov.diploma.auth.dto.organization.OrganizationDto;
 import com.mpanov.diploma.auth.dto.organization.OrganizationsListDto;
 import com.mpanov.diploma.auth.dto.organization.members.OrganizationMemberDto;
 import com.mpanov.diploma.auth.dto.organization.members.OrganizationMembersListDto;
+import com.mpanov.diploma.auth.dto.user.UserAdminInfoDto;
+import com.mpanov.diploma.auth.dto.user.UserInfoDto;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.OrganizationMember;
 import com.mpanov.diploma.auth.model.ServiceUser;
@@ -108,6 +110,31 @@ public class Mapper {
 
     public Set<Long> mapLongArrayToSortedSet(Long[] array) {
         return new TreeSet<>(Arrays.asList(array));
+    }
+
+    public UserInfoDto toUserInfoDto(ServiceUser user) {
+        return UserInfoDto.builder()
+                .id(user.getId())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .companyName(user.getCompanyName())
+                .email(user.getEmail())
+                .profilePictureUrl(user.getProfilePictureUrl())
+                .build();
+    }
+
+    public UserAdminInfoDto toUserAdminInfoDto(ServiceUser user) {
+        return UserAdminInfoDto.builder()
+                .id(user.getId())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .companyName(user.getCompanyName())
+                .email(user.getEmail())
+                .profilePictureUrl(user.getProfilePictureUrl())
+                .role(user.getSystemRole())
+                .lastLoginDate(user.getLastLoginDate())
+                .registrationDate(user.getRegistrationDate())
+                .build();
     }
 
 }

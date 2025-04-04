@@ -55,4 +55,8 @@ public class ServiceUserDao {
         return serviceUserRepository.save(user);
     }
 
+    public ServiceUser syncInfo(ServiceUser user) {
+        return serviceUserRepository.save(user);
+    }
+
 }

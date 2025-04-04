@@ -13,7 +13,9 @@ public enum ServiceErrorType {
     EMAIL_IS_INVALID,
     ENTITY_ALREADY_EXISTS,
     ORGANIZATION_ACTION_NOT_ALLOWED,
-    ENTITY_NOT_FOUND,;
+    ENTITY_NOT_FOUND,
+    FORM_VALIDATION_FAILED,
+    INTERNAL_ERROR;
 
    public static ServiceErrorType fromSignupErrorType(SignupErrorType signupErrorType) {
        return switch (signupErrorType) {
