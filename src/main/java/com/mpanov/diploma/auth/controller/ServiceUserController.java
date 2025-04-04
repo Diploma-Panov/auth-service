@@ -9,6 +9,7 @@ import com.mpanov.diploma.data.dto.TokenResponseDto;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import static com.mpanov.diploma.auth.config.SecurityConfig.*;
@@ -25,6 +26,7 @@ public class ServiceUserController {
 
     private final Mapper mapper;
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(API_PUBLIC + "/users/signup")
     public AbstractResponseDto<TokenResponseDto> signup(@RequestBody UserSignupDto dto) {
         log.info("User signup: username={}", dto.getUsername());
