@@ -84,9 +84,10 @@ public class OrganizationMembersController {
         return new AbstractResponseDto<>(MessageResponseDto.success());
     }
 
-    @PutMapping("/roles")
+    @PutMapping("/{memberId}/roles")
     public AbstractResponseDto<MessageResponseDto> updateOrganizationMemberRoles(
             @PathVariable String slug,
+            @PathVariable Long memberId,
             @Valid @RequestBody UpdateMemberRolesDto dto
     ) {
         log.info("Requested PUT /user/organizations/{}/members/roles, with dto={}", slug, dto);
@@ -95,7 +96,7 @@ public class OrganizationMembersController {
 
         ServiceUser actorUser = actorContext.getAuthenticatedUser();
 
-        organizationMembersService.updateMemberRoles(slug, actorUser, dto);
+        organizationMembersService.updateMemberRoles(slug, actorUser, dto, memberId);
 
         return new AbstractResponseDto<>(MessageResponseDto.success());
     }

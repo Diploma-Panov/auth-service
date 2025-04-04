@@ -92,13 +92,13 @@ public class OrganizationMembersService {
         organizationMemberDao.createNewMember(organization, user, member);
     }
 
-    public void updateMemberRoles(String organizationSlug, ServiceUser actorUser, UpdateMemberRolesDto dto) {
+    public void updateMemberRoles(String organizationSlug, ServiceUser actorUser, UpdateMemberRolesDto dto, Long memberId) {
         log.info("updateMemberRoles: dto={}", dto);
 
         OrganizationMember actorMember = this.getActorMemberForOrganizationSlug(actorUser, organizationSlug);
         Set<MemberRole> actorMemberRoles = actorMember.getRoles();
 
-        OrganizationMember member = organizationMemberDao.getOrganizationMemberByMemberId(dto.getMemberId());
+        OrganizationMember member = organizationMemberDao.getOrganizationMemberByMemberId(memberId);
         Set<MemberRole> memberRoles = member.getRoles();
 
         Set<MemberRole> newRoles = dto.getNewRoles();
