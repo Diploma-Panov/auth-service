@@ -1,12 +1,14 @@
 package com.mpanov.diploma.auth.controller;
 
 import com.mpanov.diploma.auth.dto.common.AbstractResponseDto;
+import com.mpanov.diploma.auth.dto.common.MessageResponseDto;
+import com.mpanov.diploma.auth.dto.organization.members.InviteMemberDto;
 import com.mpanov.diploma.auth.dto.organization.members.OrganizationMembersListDto;
 import com.mpanov.diploma.auth.model.OrganizationMember;
-import com.mpanov.diploma.auth.model.ServiceUser;
 import com.mpanov.diploma.auth.security.common.ActorContext;
 import com.mpanov.diploma.auth.service.OrganizationMembersService;
 import com.mpanov.diploma.data.MemberPermission;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -37,8 +39,7 @@ public class OrganizationMembersController {
             @RequestParam(name = "sb") Optional<String> sortByOpt,
             @RequestParam(name = "dir") Optional<String> directionOpt
     ) {
-        ServiceUser authenticatedUser = actorContext.getAuthenticatedUser();
-        log.info("Requested GET /user/organizations for userId={}", authenticatedUser.getId());
+        log.info("Requested GET /user/organizations/{}/members", slug);
 
         actorContext.assertHasAccessToOrganization(slug, MemberPermission.BASIC_VIEW);
 
@@ -66,5 +67,20 @@ public class OrganizationMembersController {
 
         return new AbstractResponseDto<>(rv);
     }
+
+    @PostMapping
+    public AbstractResponseDto<MessageResponseDto> inviteNewOrganizationMember(
+            @PathVariable String slug,
+            @Valid @RequestBody InviteMemberDto dto
+    ) {
+        log.info("Requested POST /user/organizations/{}/members, with dto={}", slug, dto);
+
+        actorContext.assertHasAccessToOrganization(slug, MemberPermission.INVITE_MEMBERS);
+
+        organizationMembersService.inviteNewOrganizationMember(slug, dto);
+
+        return new AbstractResponseDto<>(MessageResponseDto.success());
+    }
+
 
 }

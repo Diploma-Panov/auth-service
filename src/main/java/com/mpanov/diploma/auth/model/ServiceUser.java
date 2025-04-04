@@ -98,8 +98,8 @@ public class ServiceUser {
     }
 
     public void addOrganizationMember(OrganizationMember organizationMember) {
-        this.organizationMembers.add(organizationMember);
         organizationMember.setMemberUser(this);
+        this.organizationMembers.add(organizationMember);
     }
 
     public void removeOrganization(Organization organization) {

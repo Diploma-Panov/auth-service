@@ -9,6 +9,8 @@ import com.mpanov.diploma.auth.repository.ServiceUserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @AllArgsConstructor
 public class ServiceUserDao {
@@ -26,14 +28,18 @@ public class ServiceUserDao {
         return serviceUserRepository.save(newUser);
     }
 
-    public ServiceUser findServiceUserByEmailThrowable(String email) {
+    public ServiceUser getServiceUserByEmailThrowable(String email) {
         return serviceUserRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(ServiceUser.class, "email", email));
     }
 
-    public ServiceUser findServiceUserByIdThrowable(Long id) {
+    public ServiceUser getServiceUserByIdThrowable(Long id) {
         return serviceUserRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ServiceUser.class, "id", String.valueOf(id)));
+    }
+
+    public Optional<ServiceUser> getServiceUserByEmailOptional(String email) {
+        return serviceUserRepository.findByEmail(email);
     }
 
     public void updateUserSystemRole(Long id, UserSystemRole type) {

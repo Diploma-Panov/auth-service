@@ -29,7 +29,7 @@ public class ActorContext {
                 .getPrincipal();
         Long userId = subject.getUserId();
         log.debug("getAuthenticatedUser: looking up for user with id={}", userId);
-        return serviceUserDao.findServiceUserByIdThrowable(userId);
+        return serviceUserDao.getServiceUserByIdThrowable(userId);
     }
 
     public void assertHasAccessToOrganization(String organizationSlug, MemberPermission permission) {

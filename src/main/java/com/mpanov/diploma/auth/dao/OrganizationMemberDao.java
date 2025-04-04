@@ -1,7 +1,9 @@
 package com.mpanov.diploma.auth.dao;
 
 import com.mpanov.diploma.auth.exception.common.NotFoundException;
+import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.OrganizationMember;
+import com.mpanov.diploma.auth.model.ServiceUser;
 import com.mpanov.diploma.auth.repository.OrganizationMemberRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,6 +31,12 @@ public class OrganizationMemberDao {
 
     public int countOrganizationMembersBySlug(String slug) {
         return organizationMemberRepository.countAllByOrganizationSlug(slug);
+    }
+
+    public void createNewMember(Organization organization, ServiceUser serviceUser, OrganizationMember member) {
+        organization.addMember(member);
+        serviceUser.addOrganizationMember(member);
+        organizationMemberRepository.save(member);
     }
 
 }

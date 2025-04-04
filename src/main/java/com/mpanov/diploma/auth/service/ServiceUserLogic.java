@@ -12,7 +12,9 @@ import com.mpanov.diploma.auth.model.common.UserSystemRole;
 import com.mpanov.diploma.auth.security.*;
 import com.mpanov.diploma.auth.security.common.JwtUserSubject;
 import com.mpanov.diploma.auth.security.common.OrganizationAccessEntry;
+import com.mpanov.diploma.auth.security.common.PasswordService;
 import com.mpanov.diploma.data.MemberRole;
+import com.mpanov.diploma.utils.EmailUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -40,10 +42,27 @@ public class ServiceUserLogic {
     private final ImageService imageService;
 
     public TokenResponseDto signupNewUser(UserSignupDto dto) {
+        ServiceUser user = this.signupNewUserInternal(dto);
+
+        // Create auth subject for new user
+        JwtUserSubject subject = JwtUserSubject.builder()
+                .userId(user.getId())
+                .username(user.getEmail())
+                .userSystemRole(user.getSystemRole())
+                .loginType(LoginType.USER_LOGIN)
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .organizations(this.mapOrganizationAccessEntries(user))
+                .build();
+
+        return jwtPayloadService.getTokensForUserSubject(subject);
+    }
+
+    public ServiceUser signupNewUserInternal(UserSignupDto dto) {
         log.info("signupNewUser: username={}, name={}", dto.getUsername(), dto.getFirstName() + " " + dto.getLastName());
         passwordService.assertPasswordCompliant(dto.getPassword());
         String passwordHash = passwordService.encryptPassword(dto.getPassword());
-        String normalizedEmail = StringUtils.normalizeSpace(dto.getUsername()).toLowerCase();
+        String normalizedEmail = EmailUtils.normalizeEmail(dto.getUsername());
 
         // Create new permanent organization
         Organization permanentOrganization = Organization.builder()
@@ -86,23 +105,12 @@ public class ServiceUserLogic {
             user = serviceUserDao.updateWithProfilePictureUrl(user, profilePictureUrl);
         }
 
-        // Create auth subject for new user
-        JwtUserSubject subject = JwtUserSubject.builder()
-                .userId(user.getId())
-                .username(user.getEmail())
-                .userSystemRole(user.getSystemRole())
-                .loginType(LoginType.USER_LOGIN)
-                .firstname(user.getFirstname())
-                .lastname(user.getLastname())
-                .organizations(this.mapOrganizationAccessEntries(user))
-                .build();
-
-        return jwtPayloadService.getTokensForUserSubject(subject);
+        return user;
     }
 
     public UserAuthentication login(String username, String password) {
         log.info("login: attempting for username {}", username);
-        ServiceUser user = serviceUserDao.findServiceUserByEmailThrowable(username);
+        ServiceUser user = serviceUserDao.getServiceUserByEmailThrowable(username);
         if (!passwordService.passwordMatches(password, user.getPasswordHash())) {
             throw new LoginException("Incorrect password");
         }
@@ -115,7 +123,7 @@ public class ServiceUserLogic {
 
     public JwtUserSubject loginWithUserIdBySystem(Long userId) {
         log.info("loginWithUserIdBySystem: for userId={}", userId);
-        ServiceUser user = serviceUserDao.findServiceUserByIdThrowable(userId);
+        ServiceUser user = serviceUserDao.getServiceUserByIdThrowable(userId);
         return this.buildSubjectForUser(user, LoginType.SYSTEM_LOGIN);
     }
 
@@ -123,7 +131,7 @@ public class ServiceUserLogic {
         log.info("refreshSubject: for userId={}", subject.getUserId());
         Long userId = subject.getUserId();
 
-        ServiceUser user = serviceUserDao.findServiceUserByIdThrowable(userId);
+        ServiceUser user = serviceUserDao.getServiceUserByIdThrowable(userId);
 
         return this.buildSubjectForUser(user, LoginType.USER_LOGIN);
     }

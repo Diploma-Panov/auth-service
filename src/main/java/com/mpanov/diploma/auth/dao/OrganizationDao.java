@@ -1,5 +1,6 @@
 package com.mpanov.diploma.auth.dao;
 
+import com.mpanov.diploma.auth.exception.common.NotFoundException;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.OrganizationMember;
 import com.mpanov.diploma.auth.model.ServiceUser;
@@ -40,6 +41,11 @@ public class OrganizationDao {
 
     public Optional<Organization> findOrganizationBySlugOptional(String slug) {
         return organizationRepository.findOrganizationBySlug(slug);
+    }
+
+    public Organization findOrganizationBySlugThrowable(String slug) {
+        return organizationRepository.findOrganizationBySlug(slug)
+                .orElseThrow(() -> new NotFoundException(Organization.class, "slug", slug));
     }
 
     public Organization createOrganizationForUser(ServiceUser user, Organization organizationToCreate, OrganizationMember ownerMemberToCreate) {
