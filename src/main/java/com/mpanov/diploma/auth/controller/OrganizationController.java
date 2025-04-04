@@ -49,10 +49,10 @@ public class OrganizationController {
         Pageable pageable = mapper.toPageable(
                 pageOpt.orElse(0),
                 quantityOpt.orElse(10),
+                directionOpt.orElse("asc"),
                 sortByOpt
                         .filter(sb -> sb.equals("id") || sb.equals("name"))
-                        .orElse("id"),
-                directionOpt.orElse("asc")
+                        .orElse("id")
         );
 
         ServiceUser authenticatedUser = actorContext.getAuthenticatedUser();

@@ -29,7 +29,7 @@ public class OrganizationMember {
     private Long id;
 
     @ManyToOne(
-            fetch = FetchType.LAZY,
+            fetch = FetchType.EAGER,
             targetEntity = ServiceUser.class
     )
     @JoinColumn(

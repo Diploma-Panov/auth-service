@@ -1,4 +1,4 @@
-package com.mpanov.diploma.auth.dto.organization;
+package com.mpanov.diploma.auth.dto.organization.members;
 
 import com.mpanov.diploma.auth.dto.common.PagedResponse;
 import lombok.*;
@@ -11,8 +11,8 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrganizationsListDto extends PagedResponse {
+public class OrganizationMembersListDto extends PagedResponse {
 
-    private List<OrganizationDto> entries;
+    private List<OrganizationMemberDto> entries;
 
 }
