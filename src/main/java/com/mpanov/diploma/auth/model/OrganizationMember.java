@@ -51,6 +51,12 @@ public class OrganizationMember {
     @ToString.Exclude
     private Organization organization;
 
+    @Column(name = "display_firstname")
+    private String displayFirstname;
+
+    @Column(name = "display_lastname")
+    private String displayLastname;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     @EqualsAndHashCode.Include

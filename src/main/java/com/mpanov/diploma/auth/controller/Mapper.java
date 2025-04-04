@@ -7,6 +7,7 @@ import com.mpanov.diploma.auth.dto.organization.members.OrganizationMembersListD
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.OrganizationMember;
 import com.mpanov.diploma.auth.model.ServiceUser;
+import com.mpanov.diploma.utils.NullUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -87,9 +88,14 @@ public class Mapper {
 
     public OrganizationMemberDto toOrganizationMemberDto(OrganizationMember member) {
         ServiceUser user = member.getMemberUser();
-        String fullName = user.getFirstname() + " " + user.getLastname();
+
+        String firstname = NullUtils.coalesce(member.getDisplayFirstname(), user.getFirstname());
+        String lastname = NullUtils.coalesce(member.getDisplayLastname(), user.getLastname());
+        String fullName = firstname + " " + lastname;
         fullName = fullName.trim();
+
         Set<Long> allowedUrls = this.mapLongArrayToSortedSet(member.getMemberUrls());
+
         return OrganizationMemberDto.builder()
                 .id(member.getId())
                 .fullName(fullName)

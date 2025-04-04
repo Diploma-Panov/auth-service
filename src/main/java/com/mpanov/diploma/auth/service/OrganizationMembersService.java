@@ -52,6 +52,9 @@ public class OrganizationMembersService {
         log.info("inviteNewOrganizationMember: slug={}, dto={}", slug, dto);
 
         String normalizedEmail = EmailUtils.normalizeEmail(dto.getEmail());
+
+        organizationMemberDao.assertMemberDoesNotExistByEmailAndSlug(normalizedEmail, slug);
+
         Organization organization = organizationDao.findOrganizationBySlugThrowable(slug);
         Optional<ServiceUser> userOpt = serviceUserDao.getServiceUserByEmailOptional(normalizedEmail);
 
@@ -72,6 +75,8 @@ public class OrganizationMembersService {
         }
 
         OrganizationMember member = OrganizationMember.builder()
+                .displayFirstname(dto.getFirstname())
+                .displayLastname(dto.getLastname())
                 .roles(dto.getRoles())
                 .memberUrls(dto.getAllowedUrls())
                 .allowedAllUrls(dto.getAllowedAllUrls())

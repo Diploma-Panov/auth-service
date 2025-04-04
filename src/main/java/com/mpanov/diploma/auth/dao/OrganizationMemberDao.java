@@ -1,5 +1,6 @@
 package com.mpanov.diploma.auth.dao;
 
+import com.mpanov.diploma.auth.exception.common.DuplicateException;
 import com.mpanov.diploma.auth.exception.common.NotFoundException;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.OrganizationMember;
@@ -39,4 +40,10 @@ public class OrganizationMemberDao {
         organizationMemberRepository.save(member);
     }
 
+    public void assertMemberDoesNotExistByEmailAndSlug(String email, String slug) {
+        boolean exists = organizationMemberRepository.existsByMemberUserEmailAndOrganizationSlug(email, slug);
+        if (exists) {
+            throw new DuplicateException(OrganizationMember.class, "memberUser.email,organization.slug", email + "," + slug);
+        }
+    }
 }

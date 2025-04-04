@@ -45,7 +45,7 @@ public class OrganizationMembersController {
 
         String[] sortFields = sortByOpt
                 .filter("name"::equals)
-                .map(sb -> new String[]{"memberUser.firstname", "memberUser.lastname"})
+                .map(sb -> new String[]{"displayFirstname", "displayLastname", "memberUser.firstname", "memberUser.lastname"})
                 .orElse(new String[]{"memberUser.email"});
 
         Pageable pageable = mapper.toPageable(

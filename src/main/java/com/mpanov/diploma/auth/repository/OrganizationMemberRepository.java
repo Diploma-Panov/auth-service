@@ -28,4 +28,6 @@ public interface OrganizationMemberRepository extends JpaRepository<Organization
 
     int countAllByOrganizationSlug(String slug);
 
+    boolean existsByMemberUserEmailAndOrganizationSlug(String email, String organizationSlug);
+
 }
