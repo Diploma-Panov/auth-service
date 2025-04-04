@@ -1,9 +1,9 @@
 package com.mpanov.diploma.auth.controller;
 
-import com.mpanov.diploma.auth.dto.common.AbstractResponseDto;
-import com.mpanov.diploma.auth.dto.common.HealthResponseDto;
-import com.mpanov.diploma.auth.dto.common.MessageResponseDto;
-import com.mpanov.diploma.auth.exception.common.PlatformException;
+import com.mpanov.diploma.data.dto.AbstractResponseDto;
+import com.mpanov.diploma.data.dto.HealthResponseDto;
+import com.mpanov.diploma.data.dto.MessageResponseDto;
+import com.mpanov.diploma.data.exception.PlatformException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

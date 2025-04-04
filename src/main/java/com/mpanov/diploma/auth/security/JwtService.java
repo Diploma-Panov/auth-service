@@ -2,9 +2,9 @@ package com.mpanov.diploma.auth.security;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mpanov.diploma.auth.exception.common.InvalidTokenException;
-import com.mpanov.diploma.auth.exception.common.TokenFormatException;
-import com.mpanov.diploma.auth.security.common.JwtUserSubject;
+import com.mpanov.diploma.auth.exception.InvalidTokenException;
+import com.mpanov.diploma.auth.exception.TokenFormatException;
+import com.mpanov.diploma.data.security.JwtUserSubject;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.*;
 import com.nimbusds.jose.proc.SimpleSecurityContext;

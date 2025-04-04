@@ -1,4 +1,4 @@
-package com.mpanov.diploma.auth.exception.common;
+package com.mpanov.diploma.auth.exception;
 
 public class TokenFormatException extends RuntimeException {
     public TokenFormatException(String message) {

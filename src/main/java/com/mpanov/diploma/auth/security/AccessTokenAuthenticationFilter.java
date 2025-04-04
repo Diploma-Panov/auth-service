@@ -1,6 +1,6 @@
 package com.mpanov.diploma.auth.security;
 
-import com.mpanov.diploma.auth.security.common.JwtUserSubject;
+import com.mpanov.diploma.data.security.JwtUserSubject;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -5,6 +5,7 @@ import com.mpanov.diploma.auth.security.JwtPayloadService;
 import com.mpanov.diploma.auth.security.JwtProperties;
 import com.mpanov.diploma.auth.security.JwtService;
 import com.mpanov.diploma.auth.security.JwtTransportService;
+import com.mpanov.diploma.data.security.PasswordService;
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.crypto.DirectEncrypter;
@@ -38,6 +39,11 @@ public class AuthenticationConfig {
     private final JwtTransportService jwtTransportService;
 
     private final ObjectMapper objectMapper;
+
+    @Bean
+    public PasswordService passwordService() {
+        return new PasswordService(passwordEncoder());
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

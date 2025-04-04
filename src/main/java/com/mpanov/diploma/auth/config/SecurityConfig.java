@@ -1,9 +1,9 @@
 package com.mpanov.diploma.auth.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mpanov.diploma.auth.model.common.UserSystemRole;
 import com.mpanov.diploma.auth.security.*;
 import com.mpanov.diploma.auth.service.ServiceUserLogic;
+import com.mpanov.diploma.data.UserSystemRole;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.context.annotation.Bean;

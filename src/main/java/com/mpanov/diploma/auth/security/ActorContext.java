@@ -1,4 +1,4 @@
-package com.mpanov.diploma.auth.security.common;
+package com.mpanov.diploma.auth.security;
 
 import com.mpanov.diploma.auth.dao.OrganizationMemberDao;
 import com.mpanov.diploma.auth.dao.ServiceUserDao;
@@ -6,6 +6,7 @@ import com.mpanov.diploma.auth.model.OrganizationMember;
 import com.mpanov.diploma.auth.model.ServiceUser;
 import com.mpanov.diploma.data.MemberPermission;
 import com.mpanov.diploma.data.MemberRole;
+import com.mpanov.diploma.data.security.JwtUserSubject;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authorization.AuthorizationDeniedException;

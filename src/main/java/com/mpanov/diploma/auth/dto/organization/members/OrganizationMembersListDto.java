@@ -1,6 +1,6 @@
 package com.mpanov.diploma.auth.dto.organization.members;
 
-import com.mpanov.diploma.auth.dto.common.PagedResponse;
+import com.mpanov.diploma.data.dto.PagedResponse;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 

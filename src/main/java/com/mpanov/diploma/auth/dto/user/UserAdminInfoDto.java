@@ -1,7 +1,7 @@
 package com.mpanov.diploma.auth.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.mpanov.diploma.auth.model.common.UserSystemRole;
+import com.mpanov.diploma.data.UserSystemRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

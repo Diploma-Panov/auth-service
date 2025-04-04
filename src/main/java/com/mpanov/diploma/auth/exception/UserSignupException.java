@@ -1,6 +1,6 @@
 package com.mpanov.diploma.auth.exception;
 
-import com.mpanov.diploma.auth.model.SignupErrorType;
+import com.mpanov.diploma.data.SignupErrorType;
 import lombok.Getter;
 
 @Getter

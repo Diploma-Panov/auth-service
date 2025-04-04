@@ -1,8 +1,8 @@
 package com.mpanov.diploma.auth.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mpanov.diploma.auth.exception.common.LoginException;
 import com.mpanov.diploma.auth.dto.user.UserLoginDto;
+import com.mpanov.diploma.auth.exception.LoginException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;

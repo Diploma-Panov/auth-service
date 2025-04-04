@@ -1,9 +1,9 @@
 package com.mpanov.diploma.auth.security;
 
-import com.mpanov.diploma.auth.dto.common.TokenResponseDto;
-import com.mpanov.diploma.auth.exception.common.InvalidTokenException;
-import com.mpanov.diploma.auth.security.common.JwtUserSubject;
+import com.mpanov.diploma.auth.exception.InvalidTokenException;
 import com.mpanov.diploma.auth.service.ServiceUserLogic;
+import com.mpanov.diploma.data.dto.TokenResponseDto;
+import com.mpanov.diploma.data.security.JwtUserSubject;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

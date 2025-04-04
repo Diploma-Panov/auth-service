@@ -1,8 +1,8 @@
 package com.mpanov.diploma.auth.security;
 
-import com.mpanov.diploma.auth.dto.common.TokenResponseDto;
-import com.mpanov.diploma.auth.model.common.LoginType;
-import com.mpanov.diploma.auth.security.common.JwtUserSubject;
+import com.mpanov.diploma.data.LoginType;
+import com.mpanov.diploma.data.dto.TokenResponseDto;
+import com.mpanov.diploma.data.security.JwtUserSubject;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

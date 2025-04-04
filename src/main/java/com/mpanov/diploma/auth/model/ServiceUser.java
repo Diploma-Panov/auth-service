@@ -1,6 +1,6 @@
 package com.mpanov.diploma.auth.model;
 
-import com.mpanov.diploma.auth.model.common.UserSystemRole;
+import com.mpanov.diploma.data.UserSystemRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;

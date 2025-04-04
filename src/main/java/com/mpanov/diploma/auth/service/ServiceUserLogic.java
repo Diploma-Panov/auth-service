@@ -1,21 +1,18 @@
 package com.mpanov.diploma.auth.service;
 
 import com.mpanov.diploma.auth.dao.ServiceUserDao;
-import com.mpanov.diploma.auth.dto.common.TokenResponseDto;
 import com.mpanov.diploma.auth.dto.user.UpdateUserInfoByAdminDto;
 import com.mpanov.diploma.auth.dto.user.UpdateUserInfoDto;
 import com.mpanov.diploma.auth.dto.user.UserSignupDto;
-import com.mpanov.diploma.auth.exception.common.LoginException;
+import com.mpanov.diploma.auth.exception.LoginException;
 import com.mpanov.diploma.auth.exception.UserSignupException;
 import com.mpanov.diploma.auth.model.*;
-import com.mpanov.diploma.auth.model.common.LoginType;
-import com.mpanov.diploma.auth.model.common.OrganizationType;
-import com.mpanov.diploma.auth.model.common.UserSystemRole;
 import com.mpanov.diploma.auth.security.*;
-import com.mpanov.diploma.auth.security.common.JwtUserSubject;
-import com.mpanov.diploma.auth.security.common.OrganizationAccessEntry;
-import com.mpanov.diploma.auth.security.common.PasswordService;
-import com.mpanov.diploma.data.MemberRole;
+import com.mpanov.diploma.data.*;
+import com.mpanov.diploma.data.dto.TokenResponseDto;
+import com.mpanov.diploma.data.security.JwtUserSubject;
+import com.mpanov.diploma.data.security.OrganizationAccessEntry;
+import com.mpanov.diploma.data.security.PasswordService;
 import com.mpanov.diploma.utils.EmailUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,16 +1,16 @@
 package com.mpanov.diploma.auth.controller;
 
-import com.mpanov.diploma.auth.dto.common.AbstractResponseDto;
-import com.mpanov.diploma.auth.dto.common.TokenResponseDto;
 import com.mpanov.diploma.auth.dto.organization.*;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.ServiceUser;
+import com.mpanov.diploma.auth.security.ActorContext;
 import com.mpanov.diploma.auth.security.JwtPayloadService;
-import com.mpanov.diploma.auth.security.common.ActorContext;
-import com.mpanov.diploma.auth.security.common.JwtUserSubject;
 import com.mpanov.diploma.auth.service.OrganizationService;
 import com.mpanov.diploma.auth.service.ServiceUserLogic;
 import com.mpanov.diploma.data.MemberPermission;
+import com.mpanov.diploma.data.dto.AbstractResponseDto;
+import com.mpanov.diploma.data.dto.TokenResponseDto;
+import com.mpanov.diploma.data.security.JwtUserSubject;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

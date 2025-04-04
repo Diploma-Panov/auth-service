@@ -1,6 +1,6 @@
 package com.mpanov.diploma.auth.security;
 
-import com.mpanov.diploma.auth.exception.common.LoginException;
+import com.mpanov.diploma.auth.exception.LoginException;
 import com.mpanov.diploma.auth.service.ServiceUserLogic;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;

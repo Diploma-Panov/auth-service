@@ -1,11 +1,12 @@
 package com.mpanov.diploma.auth.controller;
 
-import com.mpanov.diploma.auth.dto.common.ErrorResponseDto;
-import com.mpanov.diploma.auth.dto.common.ErrorResponseElement;
-import com.mpanov.diploma.auth.dto.common.ServiceErrorType;
-import com.mpanov.diploma.auth.exception.OrganizationActionNotAllowed;
-import com.mpanov.diploma.auth.exception.UserSignupException;
-import com.mpanov.diploma.auth.exception.common.*;
+import com.mpanov.diploma.auth.exception.*;
+import com.mpanov.diploma.data.dto.ErrorResponseDto;
+import com.mpanov.diploma.data.dto.ErrorResponseElement;
+import com.mpanov.diploma.data.dto.ServiceErrorType;
+import com.mpanov.diploma.data.exception.DuplicateException;
+import com.mpanov.diploma.data.exception.NotFoundException;
+import com.mpanov.diploma.data.exception.PlatformException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ClassUtils;

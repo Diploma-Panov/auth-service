@@ -1,7 +1,7 @@
 package com.mpanov.diploma.auth.model;
 
-import com.mpanov.diploma.auth.model.common.OrganizationScope;
-import com.mpanov.diploma.auth.model.common.OrganizationType;
+import com.mpanov.diploma.data.OrganizationScope;
+import com.mpanov.diploma.data.OrganizationType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;

@@ -1,4 +1,4 @@
-package com.mpanov.diploma.auth.exception.common;
+package com.mpanov.diploma.auth.exception;
 
 import org.springframework.security.core.AuthenticationException;
 

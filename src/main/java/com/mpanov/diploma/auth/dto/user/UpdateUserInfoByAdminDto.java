@@ -1,6 +1,6 @@
 package com.mpanov.diploma.auth.dto.user;
 
-import com.mpanov.diploma.auth.model.common.UserSystemRole;
+import com.mpanov.diploma.data.UserSystemRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
