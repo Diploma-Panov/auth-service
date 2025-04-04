@@ -4,7 +4,9 @@ import com.mpanov.diploma.auth.dto.common.AbstractResponseDto;
 import com.mpanov.diploma.auth.dto.common.MessageResponseDto;
 import com.mpanov.diploma.auth.dto.organization.members.InviteMemberDto;
 import com.mpanov.diploma.auth.dto.organization.members.OrganizationMembersListDto;
+import com.mpanov.diploma.auth.dto.organization.members.UpdateMemberRolesDto;
 import com.mpanov.diploma.auth.model.OrganizationMember;
+import com.mpanov.diploma.auth.model.ServiceUser;
 import com.mpanov.diploma.auth.security.common.ActorContext;
 import com.mpanov.diploma.auth.service.OrganizationMembersService;
 import com.mpanov.diploma.data.MemberPermission;
@@ -78,6 +80,22 @@ public class OrganizationMembersController {
         actorContext.assertHasAccessToOrganization(slug, MemberPermission.INVITE_MEMBERS);
 
         organizationMembersService.inviteNewOrganizationMember(slug, dto);
+
+        return new AbstractResponseDto<>(MessageResponseDto.success());
+    }
+
+    @PutMapping("/roles")
+    public AbstractResponseDto<MessageResponseDto> updateOrganizationMemberRoles(
+            @PathVariable String slug,
+            @Valid @RequestBody UpdateMemberRolesDto dto
+    ) {
+        log.info("Requested PUT /user/organizations/{}/members/roles, with dto={}", slug, dto);
+
+        actorContext.assertHasAccessToOrganization(slug, MemberPermission.MANAGE_MEMBERS);
+
+        ServiceUser actorUser = actorContext.getAuthenticatedUser();
+
+        organizationMembersService.updateMemberRoles(slug, actorUser, dto);
 
         return new AbstractResponseDto<>(MessageResponseDto.success());
     }

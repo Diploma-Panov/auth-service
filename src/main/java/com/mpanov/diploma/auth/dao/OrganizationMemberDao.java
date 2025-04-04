@@ -6,10 +6,13 @@ import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.OrganizationMember;
 import com.mpanov.diploma.auth.model.ServiceUser;
 import com.mpanov.diploma.auth.repository.OrganizationMemberRepository;
+import com.mpanov.diploma.data.MemberRole;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -26,6 +29,11 @@ public class OrganizationMemberDao {
                 .orElseThrow(() -> new NotFoundException(OrganizationMember.class, "memberUserId,organizationSlug", memberUserId + "," + organizationSlug));
     }
 
+    public OrganizationMember getOrganizationMemberByMemberId(Long memberId) {
+        return organizationMemberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException(OrganizationMember.class, "id", memberId.toString()));
+    }
+
     public Page<OrganizationMember> getOrganizationMembersBySlugPageable(String slug, Pageable pageable) {
         return organizationMemberRepository.findMembersByOrganizationSlug(slug, pageable);
     }
@@ -38,6 +46,11 @@ public class OrganizationMemberDao {
         organization.addMember(member);
         serviceUser.addOrganizationMember(member);
         organizationMemberRepository.save(member);
+    }
+
+    public void updateMemberWithNewRoles(OrganizationMember members, Set<MemberRole> newRoles) {
+        members.setRoles(newRoles);
+        organizationMemberRepository.save(members);
     }
 
     public void assertMemberDoesNotExistByEmailAndSlug(String email, String slug) {
