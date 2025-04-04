@@ -93,6 +93,14 @@ public class RestExceptionHandler {
         return composeErrorResponseDto(e, ServiceErrorType.ORGANIZATION_ACTION_NOT_ALLOWED);
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponseDto handleNotFoundException(HttpServletRequest req, NotFoundException e) {
+        logError(req, e);
+        return composeErrorResponseDto(e, ServiceErrorType.ENTITY_NOT_FOUND);
+    }
+
     @ExceptionHandler(TokenFormatException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.UNAUTHORIZED)

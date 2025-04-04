@@ -165,6 +165,23 @@ public class OrganizationMembersService {
         organizationMemberDao.updateMemberWithUrls(member, dto.getNewUrlsIds(), dto.getAllowedAllUrls());
     }
 
+    public void deleteOrganizationMember(Long memberId, ServiceUser actorUser, String organizationSlug) {
+        log.info("deleteOrganizationMember: memberId={}", memberId);
+
+        OrganizationMember actorMember = this.getActorMemberForOrganizationSlug(actorUser, organizationSlug);
+        OrganizationMember member = organizationMemberDao.getOrganizationMemberByIdThrowable(memberId);
+
+        if (member.getRoles().contains(MemberRole.ORGANIZATION_OWNER)) {
+            throw new OrganizationActionNotAllowed("Impossible to remove organization owner");
+        }
+
+        if (Objects.equals(actorMember.getId(), memberId)) {
+            throw new OrganizationActionNotAllowed("Organization members cannot remove themselves from organization");
+        }
+
+        organizationMemberDao.deleteMember(member);
+    }
+
     private Set<MemberRole> subtractRoles(Set<MemberRole> s1, Set<MemberRole> s2) {
         Set<MemberRole> rv = new HashSet<>(s1);
         rv.removeAll(s2);

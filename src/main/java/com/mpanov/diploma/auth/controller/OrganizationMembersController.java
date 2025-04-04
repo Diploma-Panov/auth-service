@@ -119,4 +119,20 @@ public class OrganizationMembersController {
         return new AbstractResponseDto<>(MessageResponseDto.success());
     }
 
+    @DeleteMapping("/{memberId}")
+    public AbstractResponseDto<MessageResponseDto> deleteOrganizationMember(
+            @PathVariable String slug,
+            @PathVariable Long memberId
+    ) {
+        log.info("Requested DELETE /user/organizations/{}/members/{}", slug, memberId);
+
+        actorContext.assertHasAccessToOrganization(slug, MemberPermission.MANAGE_MEMBERS);
+
+        ServiceUser actorUser = actorContext.getAuthenticatedUser();
+
+        organizationMembersService.deleteOrganizationMember(memberId, actorUser, slug);
+
+        return new AbstractResponseDto<>(MessageResponseDto.success());
+    }
+
 }

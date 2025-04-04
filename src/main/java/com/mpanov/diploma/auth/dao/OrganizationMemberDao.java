@@ -66,4 +66,10 @@ public class OrganizationMemberDao {
         member.setAllowedAllUrls(allowedAllUrls);
         organizationMemberRepository.save(member);
     }
+
+    public void deleteMember(OrganizationMember member) {
+        member.getOrganization().removeMember(member);
+        member.getMemberUser().removeMember(member);
+        organizationMemberRepository.delete(member);
+    }
 }
