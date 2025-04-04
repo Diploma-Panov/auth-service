@@ -5,6 +5,11 @@
             <username>aws</username>
             <password>${env.CODEARTIFACT_AUTH_TOKEN}</password>
         </server>
+        <server>
+            <id>codeartifact</id>
+            <username>${{ env.AWS_ACCESS_KEY_ID }}</username>
+            <password>${{ env.AWS_SECRET_ACCESS_KEY }}</password>
+        </server>
     </servers>
     <profiles>
         <profile>
