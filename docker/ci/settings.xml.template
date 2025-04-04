@@ -1,11 +1,6 @@
 <settings>
     <servers>
         <server>
-            <id>mpanov-diploma-java-utils</id>
-            <username>aws</username>
-            <password>${env.CODEARTIFACT_AUTH_TOKEN}</password>
-        </server>
-        <server>
             <id>codeartifact</id>
             <username>${{ secrets.AWS_ACCESS_KEY_ID }}</username>
             <password>${{ secrets.AWS_SECRET_ACCESS_KEY }}</password>
