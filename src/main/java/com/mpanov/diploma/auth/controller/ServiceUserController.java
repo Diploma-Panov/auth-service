@@ -54,29 +54,6 @@ public class ServiceUserController {
         return new AbstractResponseDto<>(rv);
     }
 
-    @GetMapping(API_ADMIN + "/users/{userId}/info")
-    public AbstractResponseDto<UserAdminInfoDto> getUserAdminInfo(@PathVariable Long userId) {
-        log.info("Received GET /user/users/{}/info", userId);
-
-        ServiceUser user = serviceUserLogic.getServiceUserByIdThrowable(userId);
-
-        UserAdminInfoDto rv = mapper.toUserAdminInfoDto(user);
-        return new AbstractResponseDto<>(rv);
-    }
-
-    @PatchMapping(API_ADMIN + "/users/{userId}/info")
-    public AbstractResponseDto<UserAdminInfoDto> updateUserInfoByAdmin(
-            @PathVariable Long userId,
-            @Valid @RequestBody UpdateUserInfoByAdminDto dto
-    ) {
-        log.info("Received PATCH /admin/users/{}/info, userId={}", userId, dto);
-
-        ServiceUser updatedUser = serviceUserLogic.updateUserInfoByAdmin(userId, dto);
-
-        UserAdminInfoDto rv = mapper.toUserAdminInfoDto(updatedUser);
-        return new AbstractResponseDto<>(rv);
-    }
-
     @PutMapping(API_USER + "/profile-picture")
     public AbstractResponseDto<UserInfoDto> updateProfilePicture(
             @Valid @RequestBody UpdateUserProfilePictureDto dto
@@ -88,35 +65,12 @@ public class ServiceUserController {
         return new AbstractResponseDto<>(rv);
     }
 
-    @PutMapping(API_ADMIN + "/users/{userId}/profile-picture")
-    public AbstractResponseDto<UserAdminInfoDto> updateProfilePictureByAdmin(
-            @PathVariable Long userId,
-            @Valid @RequestBody UpdateUserProfilePictureDto dto
-    ) {
-        log.info("Received PUT /admin/users/{}/profile-picture", userId);
-        ServiceUser user = serviceUserLogic.getServiceUserByIdThrowable(userId);
-        ServiceUser updatedUser = serviceUserLogic.updateProfilePicture(user, dto.getNewProfilePictureBase64());
-        UserAdminInfoDto rv = mapper.toUserAdminInfoDto(updatedUser);
-        return new AbstractResponseDto<>(rv);
-    }
-
     @DeleteMapping(API_USER + "/profile-picture")
     public AbstractResponseDto<UserInfoDto> deleteProfilePicture() {
         log.info("Received DELETE /user/profile-picture");
         ServiceUser actorUser = actorContext.getAuthenticatedUser();
         ServiceUser updatedUser = serviceUserLogic.removeProfilePicture(actorUser);
         UserInfoDto rv = mapper.toUserInfoDto(updatedUser);
-        return new AbstractResponseDto<>(rv);
-    }
-
-    @DeleteMapping(API_ADMIN + "/users/{userId}/profile-picture")
-    public AbstractResponseDto<UserAdminInfoDto> deleteProfilePictureByAdmin(
-            @PathVariable Long userId
-    ) {
-        log.info("Received DELETE /admin/users/{}/profile-picture", userId);
-        ServiceUser user = serviceUserLogic.getServiceUserByIdThrowable(userId);
-        ServiceUser updatedUser = serviceUserLogic.removeProfilePicture(user);
-        UserAdminInfoDto rv = mapper.toUserAdminInfoDto(updatedUser);
         return new AbstractResponseDto<>(rv);
     }
 
