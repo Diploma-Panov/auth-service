@@ -37,30 +37,22 @@ public class OrganizationMembersController {
             @RequestParam(name = "sb") Optional<String> sortByOpt,
             @RequestParam(name = "dir") Optional<String> directionOpt
     ) {
+        ServiceUser authenticatedUser = actorContext.getAuthenticatedUser();
+        log.info("Requested GET /user/organizations for userId={}", authenticatedUser.getId());
+
         actorContext.assertHasAccessToOrganization(slug, MemberPermission.BASIC_VIEW);
+
+        String[] sortFields = sortByOpt
+                .filter("name"::equals)
+                .map(sb -> new String[]{"memberUser.firstname", "memberUser.lastname"})
+                .orElse(new String[]{"memberUser.email"});
 
         Pageable pageable = mapper.toPageable(
                 pageOpt.orElse(0),
                 quantityOpt.orElse(10),
                 directionOpt.orElse("asc"),
-                sortByOpt
-                        .map(sb -> {
-                            if (sb.equals("name")) {
-                                return new String[] {
-                                        "memberUser.firstname",
-                                        "memberUser.lastname",
-                                };
-                            }
-                            return new String[] {
-                                    "memberUser.email"
-                            };
-                        })
-                        .orElse(new String[] { "memberUser.email" })
+                sortFields
         );
-
-        ServiceUser authenticatedUser = actorContext.getAuthenticatedUser();
-
-        log.info("Requested GET /user/organizations for userId={}", authenticatedUser.getId());
 
         List<OrganizationMember> members = organizationMembersService.getOrganizationMembersBySlug(slug, pageable);
 
