@@ -29,16 +29,7 @@ public class UserTestUtils {
     private String emailTemplate;
 
     public ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> signupRandomUser() {
-        UserSignupDto dto = UserSignupDto.builder()
-                .username(generateRandomEmail())
-                .password(passwordService.generateCompliantPassword())
-                .firstName(RandomUtils.generateRandomAlphabeticalString(15))
-                .lastName(RandomUtils.generateRandomAlphabeticalString(15))
-                .companyName(RandomUtils.generateRandomAlphabeticalString(10))
-                .registrationScope(OrganizationScope.SHORTENER_SCOPE)
-                .siteUrl(generateRandomUrl())
-                .build();
-
+        UserSignupDto dto = this.generateSignupDto();
         ServiceUser user = serviceUserLogic.signupNewUserInternal(dto);
 
         UserAuthentication auth = serviceUserLogic.login(dto.getUsername(), dto.getPassword());
@@ -48,9 +39,27 @@ public class UserTestUtils {
     }
 
     public ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> signupNewAdminUser() {
-        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> pair = this.signupRandomUser();
-        serviceUserLogic.changeUserSystemRole(pair.middle.getId(), UserSystemRole.ADMIN);
-        return pair;
+        UserSignupDto dto = this.generateSignupDto();
+        ServiceUser user = serviceUserLogic.signupNewUserInternal(dto);
+
+        serviceUserLogic.changeUserSystemRole(user.getId(), UserSystemRole.ADMIN);
+
+        UserAuthentication auth = serviceUserLogic.login(dto.getUsername(), dto.getPassword());
+        TokenResponseDto tokens = jwtPayloadService.getTokensForUserSubject(auth.getUserSubject());
+
+        return ImmutableTriple.of(dto, user, tokens);
+    }
+
+    public UserSignupDto generateSignupDto() {
+        return UserSignupDto.builder()
+                .username(generateRandomEmail())
+                .password(passwordService.generateCompliantPassword())
+                .firstName(RandomUtils.generateRandomAlphabeticalString(15))
+                .lastName(RandomUtils.generateRandomAlphabeticalString(15))
+                .companyName(RandomUtils.generateRandomAlphabeticalString(10))
+                .registrationScope(OrganizationScope.SHORTENER_SCOPE)
+                .siteUrl(generateRandomUrl())
+                .build();
     }
 
     public String generateRandomEmail() {
