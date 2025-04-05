@@ -1,6 +1,7 @@
 package com.mpanov.diploma.auth.controller;
 
 import com.mpanov.diploma.auth.dto.user.UserSignupDto;
+import com.mpanov.diploma.auth.exception.InvalidTokenException;
 import com.mpanov.diploma.auth.model.ServiceUser;
 import com.mpanov.diploma.auth.utils.UserTestUtils;
 import com.mpanov.diploma.data.dto.*;
@@ -111,6 +112,20 @@ public class PlatformControllerTest {
                 .andExpect(jsonPath("$.errors[0].errorMessage").value("Access Denied"))
                 .andExpect(jsonPath("$.errors[0].errorType").value(ServiceErrorType.ACCESS_DENIED.toString()))
                 .andExpect(jsonPath("$.errors[0].errorClass").value(AuthorizationDeniedException.class.getSimpleName()));
+    }
+
+    @Test
+    @DisplayName("Should throw if token is invalid")
+    public void shouldThrowIfTokenIsInvalid() throws Exception {
+        String badToken = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiJZekV6TUdkb01ISm5PSEJpT0cxaWJEaHlOVEE9IiwicmVzcG9uc2VfdHlwZSI6ImNvZGUiLCJzY29wZSI6ImludHJvc2NwZWN0X3Rva2VucywgcmV2b2tlX3Rva2VucyIsImlzcyI6ImJqaElSak0xY1hwYWEyMXpkV3RJU25wNmVqbE1iazQ0YlRsTlpqazNkWEU9Iiwic3ViIjoiWXpFek1HZG9NSEpuT0hCaU9HMWliRGh5TlRBPSIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0Ojg0NDMve3RpZH0ve2FpZH0vb2F1dGgyL2F1dGhvcml6ZSIsImp0aSI6IjE1MTYyMzkwMjIiLCJleHAiOiIyMDIxLTA1LTE3VDA3OjA5OjQ4LjAwMCswNTQ1In0.IxvaN4ER-PlPgLYzfRhk_JiY4VAow3GNjaK5rYCINFsEPa7VaYnRsaCmQVq8CTgddihEPPXet2laH8_c3WqxY4AeZO5eljwSCobCHzxYdOoFKbpNXIm7dqHg_5xpQz-YBJMiDM1ILOEsER8ADyF4NC2sN0K_0t6xZLSAQIRrHvpGOrtYr5E-SllTWHWPmqCkX2BUZxoYNK2FWgQZpuUOD55HfsvFXNVQa_5TFRDibi9LsT7Sd_az0iGB0TfAb0v3ZR0qnmgyp5pTeIeU5UqhtbgU9RnUCVmGIK-SZYNvrlXgv9hiKAZGhLgeI8hO40utfT2YTYHgD2Aiufqo3RIbJA";
+        mockMvc.perform(get(API_USER + "/platform/user-auth")
+                        .header("Authorization", badToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("Invalid JWT signature"))
+                .andExpect(jsonPath("$.errors[0].errorType").value(ServiceErrorType.INVALID_ACCESS_TOKEN.toString()))
+                .andExpect(jsonPath("$.errors[0].errorClass").value(InvalidTokenException.class.getSimpleName()));
     }
 
 }
