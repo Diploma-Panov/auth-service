@@ -115,28 +115,32 @@ public class OrganizationMembersService {
 
         if (
                 !actorMemberRoles.contains(MemberRole.ORGANIZATION_OWNER) &&
-                        !memberRoles.contains(MemberRole.ORGANIZATION_ADMIN) &&
-                        !memberRoles.contains(MemberRole.ORGANIZATION_MEMBERS_MANAGER)
+                        !actorMemberRoles.contains(MemberRole.ORGANIZATION_ADMIN) &&
+                        !actorMemberRoles.contains(MemberRole.ORGANIZATION_MEMBERS_MANAGER)
         ) {
             throw new OrganizationActionNotAllowed("Actor member does not have any member management role");
         }
 
-        Set<MemberRole> newRolesWithoutCurrent = this.subtractRoles(newRoles, memberRoles);
-        if (
-                !actorMemberRoles.containsAll(newRolesWithoutCurrent) &&
-                        !actorMemberRoles.contains(MemberRole.ORGANIZATION_OWNER) &&
-                        !actorMemberRoles.contains(MemberRole.ORGANIZATION_ADMIN)
-        ) {
-            throw new OrganizationActionNotAllowed(
-                    "Actor member "
-                            + actorMember.getId()
-                            + " does not have required roles to grant the following roles "
-                            + newRoles
-            );
+        boolean isElevated = actorMemberRoles.contains(MemberRole.ORGANIZATION_OWNER)
+                || actorMemberRoles.contains(MemberRole.ORGANIZATION_ADMIN);
+
+        if (!isElevated) {
+            Set<MemberRole> rolesToAdd = this.subtractRoles(newRoles, memberRoles);
+            if (!actorMemberRoles.containsAll(rolesToAdd)) {
+                throw new OrganizationActionNotAllowed(
+                        "Actor member " + actorMember.getId() + " does not have required roles to grant the following roles " + rolesToAdd);
+            }
+            Set<MemberRole> rolesToRemove = new HashSet<>(memberRoles);
+            rolesToRemove.removeAll(newRoles);
+            if (!actorMemberRoles.containsAll(rolesToRemove)) {
+                throw new OrganizationActionNotAllowed(
+                        "Actor member " + actorMember.getId() + " does not have required roles to remove the following roles " + rolesToRemove);
+            }
         }
 
         organizationMemberDao.updateMemberWithNewRoles(member, newRoles);
     }
+
 
     public void updateMemberUrls(
             String organizationSlug,
