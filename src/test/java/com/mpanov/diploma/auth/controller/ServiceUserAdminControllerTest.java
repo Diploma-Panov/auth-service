@@ -10,7 +10,6 @@ import com.mpanov.diploma.auth.utils.UserTestUtils;
 import com.mpanov.diploma.data.UserSystemRole;
 import com.mpanov.diploma.data.dto.ServiceErrorType;
 import com.mpanov.diploma.data.dto.TokenResponseDto;
-import com.mpanov.diploma.data.security.PasswordService;
 import com.mpanov.diploma.utils.RandomUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,9 +39,6 @@ public class ServiceUserAdminControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private PasswordService passwordService;
 
     @Autowired
     private ServiceUserDao serviceUserDao;
@@ -282,7 +278,6 @@ public class ServiceUserAdminControllerTest {
     public void shouldNotAllowNonAdminUserToRemoveOtherUsers() throws Exception {
         ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> userData =
                 userTestUtils.signupRandomUser();
-        ServiceUser u = userData.middle;
 
         serviceUserDao.updateWithProfilePictureUrl(userData.middle, "https://test.com");
 
