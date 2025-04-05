@@ -6,6 +6,7 @@ import com.mpanov.diploma.auth.dto.user.UpdateUserInfoByAdminDto;
 import com.mpanov.diploma.auth.dto.user.UpdateUserProfilePictureDto;
 import com.mpanov.diploma.auth.dto.user.UserSignupDto;
 import com.mpanov.diploma.auth.model.ServiceUser;
+import com.mpanov.diploma.auth.utils.CommonTestUtils;
 import com.mpanov.diploma.auth.utils.UserTestUtils;
 import com.mpanov.diploma.data.UserSystemRole;
 import com.mpanov.diploma.data.dto.ServiceErrorType;
@@ -36,6 +37,9 @@ public class ServiceUserAdminControllerTest {
 
     @Autowired
     private UserTestUtils userTestUtils;
+
+    @Autowired
+    private CommonTestUtils commonTestUtils;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -103,7 +107,7 @@ public class ServiceUserAdminControllerTest {
         UpdateUserInfoByAdminDto dto = UpdateUserInfoByAdminDto.builder()
                 .newFirstname(RandomUtils.generateRandomAlphabeticalString(20))
                 .newLastname(RandomUtils.generateRandomAlphabeticalString(20))
-                .newEmail(userTestUtils.generateRandomEmail())
+                .newEmail(commonTestUtils.generateRandomEmail())
                 .newCompanyName(RandomUtils.generateRandomAlphabeticalString(20))
                 .newRole(UserSystemRole.ADMIN)
                 .build();

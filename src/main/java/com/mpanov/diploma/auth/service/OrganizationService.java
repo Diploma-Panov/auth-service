@@ -57,7 +57,7 @@ public class OrganizationService {
                 .orElseThrow(() -> new NotFoundException(Organization.class, "slug", slug));
     }
 
-    public void createOrganizationByUser(ServiceUser user, CreateOrganizationDto dto) {
+    public Organization createOrganizationByUser(ServiceUser user, CreateOrganizationDto dto) {
         log.info("createOrganizationByUser: for user={}, organizationName={}, slug={}", user.getId(), dto.getName(), dto.getSlug());
 
         String slug = dto.getSlug();
@@ -86,7 +86,7 @@ public class OrganizationService {
 
         String avatarBase64 = dto.getAvatarBase64();
         if (StringUtils.isBlank(avatarBase64)) {
-            return;
+            return createdOrganization;
         }
 
         Long createdOrganizationId = createdOrganization.getId();
@@ -94,7 +94,7 @@ public class OrganizationService {
         byte[] avatarBytes = Base64.getDecoder().decode(dto.getAvatarBase64().getBytes(StandardCharsets.UTF_8));
         String avatarUrl = imageService.saveOrganizationAvatar(avatarBytes, createdOrganizationId);
 
-        organizationDao.updateWithAvatarUrl(createdOrganization, avatarUrl);
+        return organizationDao.updateWithAvatarUrl(createdOrganization, avatarUrl);
     }
 
     private void assertSlugIsUnique(String slug) {

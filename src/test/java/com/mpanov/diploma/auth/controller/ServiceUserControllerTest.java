@@ -5,6 +5,7 @@ import com.mpanov.diploma.auth.dto.user.UpdateUserInfoDto;
 import com.mpanov.diploma.auth.dto.user.UpdateUserProfilePictureDto;
 import com.mpanov.diploma.auth.dto.user.UserSignupDto;
 import com.mpanov.diploma.auth.model.ServiceUser;
+import com.mpanov.diploma.auth.utils.CommonTestUtils;
 import com.mpanov.diploma.auth.utils.UserTestUtils;
 import com.mpanov.diploma.data.OrganizationScope;
 import com.mpanov.diploma.data.dto.TokenResponseDto;
@@ -36,6 +37,9 @@ public class ServiceUserControllerTest {
     private UserTestUtils userTestUtils;
 
     @Autowired
+    private CommonTestUtils commonTestUtils;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -44,7 +48,7 @@ public class ServiceUserControllerTest {
     @Test
     @DisplayName("Should sign up new user")
     public void shouldSignUpNewUser() throws Exception {
-        String email = userTestUtils.generateRandomEmail();
+        String email = commonTestUtils.generateRandomEmail();
         UserSignupDto userSignupDto = UserSignupDto.builder()
                 .username(email)
                 .password(passwordService.generateCompliantPassword())
@@ -53,7 +57,7 @@ public class ServiceUserControllerTest {
                 .companyName(RandomUtils.generateRandomAlphabeticalString(20))
                 .profilePictureBase64(RandomUtils.generateRandomAlphabeticalString(100))
                 .registrationScope(OrganizationScope.SHORTENER_SCOPE)
-                .siteUrl(userTestUtils.generateRandomUrl())
+                .siteUrl(commonTestUtils.generateRandomUrl())
                 .build();
 
         String body = objectMapper.writeValueAsString(userSignupDto);
@@ -101,7 +105,7 @@ public class ServiceUserControllerTest {
                 RandomUtils.generateRandomAlphabeticalString(20),
                 RandomUtils.generateRandomAlphabeticalString(20),
                 RandomUtils.generateRandomAlphabeticalString(20),
-                userTestUtils.generateRandomEmail()
+                commonTestUtils.generateRandomEmail()
         );
 
         String jsonContent = objectMapper.writeValueAsString(updateDto);
