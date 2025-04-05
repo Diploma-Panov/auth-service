@@ -10,6 +10,7 @@ import com.mpanov.diploma.auth.model.*;
 import com.mpanov.diploma.auth.security.*;
 import com.mpanov.diploma.data.*;
 import com.mpanov.diploma.data.dto.TokenResponseDto;
+import com.mpanov.diploma.data.exception.NonCompliantPasswordException;
 import com.mpanov.diploma.data.security.JwtUserSubject;
 import com.mpanov.diploma.data.security.OrganizationAccessEntry;
 import com.mpanov.diploma.data.security.PasswordService;
@@ -63,7 +64,11 @@ public class ServiceUserLogic {
 
     public ServiceUser signupNewUserInternal(UserSignupDto dto) {
         log.info("signupNewUser: username={}, name={}", dto.getUsername(), dto.getFirstName() + " " + dto.getLastName());
-        passwordService.assertPasswordCompliant(dto.getPassword());
+        try {
+            passwordService.assertPasswordCompliant(dto.getPassword());
+        } catch (NonCompliantPasswordException e) {
+            throw new UserSignupException(SignupErrorType.NON_COMPLIANT_PASSWORD, "Password " + dto.getPassword() + " is not compliant");
+        }
         String passwordHash = passwordService.encryptPassword(dto.getPassword());
         String normalizedEmail = EmailUtils.normalizeEmail(dto.getUsername());
 

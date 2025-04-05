@@ -127,10 +127,13 @@ public class ServiceUserAdminControllerTest {
                 .andExpect(jsonPath("$.payload.companyName").value(dto.getNewCompanyName()))
                 .andExpect(jsonPath("$.payload.role").value(dto.getNewRole().toString()));
 
+        UpdateUserInfoByAdminDto empty = new UpdateUserInfoByAdminDto();
+        String emptyBody = objectMapper.writeValueAsString(empty);
+
         mockMvc.perform(patch(API_USER + "/personal-info")
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
+                        .content(emptyBody))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -138,7 +141,7 @@ public class ServiceUserAdminControllerTest {
                 .andExpect(jsonPath("$.payload.firstname").value(dto.getNewFirstname()))
                 .andExpect(jsonPath("$.payload.lastname").value(dto.getNewLastname()))
                 .andExpect(jsonPath("$.payload.email").value(dto.getNewEmail()))
-                .andExpect(jsonPath("$.payload.companyName").value(dto.getNewCompanyName()));
+                .andExpect(jsonPath("$.payload.companyName").isEmpty());
     }
 
     @Test
