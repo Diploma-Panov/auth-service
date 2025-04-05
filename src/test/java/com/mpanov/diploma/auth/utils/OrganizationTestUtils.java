@@ -9,6 +9,8 @@ import com.mpanov.diploma.utils.RandomUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Random;
+
 @Service
 @RequiredArgsConstructor
 public class OrganizationTestUtils {
@@ -18,6 +20,30 @@ public class OrganizationTestUtils {
     private final CommonTestUtils commonTestUtils;
 
     public Organization createTestShortenerOrganizationForUser(ServiceUser user) {
+        CreateOrganizationDto dto = CreateOrganizationDto.builder()
+                .name(RandomUtils.generateRandomAlphabeticalString(20))
+                .slug(this.generateRandomSlug())
+                .scope(OrganizationScope.SHORTENER_SCOPE)
+                .url(commonTestUtils.generateRandomUrl())
+                .description(RandomUtils.generateRandomAlphabeticalString(30))
+                .avatarBase64(RandomUtils.generateRandomAlphabeticalString(100))
+                .build();
+        return organizationService.createOrganizationByUser(user, dto);
+    }
+
+    public Organization createTestOrganizationForUser(ServiceUser user, String name) {
+        CreateOrganizationDto dto = CreateOrganizationDto.builder()
+                .name(name)
+                .slug(this.generateRandomSlug())
+                .scope(OrganizationScope.SHORTENER_SCOPE)
+                .url(commonTestUtils.generateRandomUrl())
+                .description(RandomUtils.generateRandomAlphabeticalString(30))
+                .avatarBase64(RandomUtils.generateRandomAlphabeticalString(100))
+                .build();
+        return organizationService.createOrganizationByUser(user, dto);
+    }
+
+    public Organization createTestOrganizationForUser(ServiceUser user) {
         CreateOrganizationDto dto = CreateOrganizationDto.builder()
                 .name(RandomUtils.generateRandomAlphabeticalString(20))
                 .slug(this.generateRandomSlug())

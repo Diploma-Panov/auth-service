@@ -66,6 +66,7 @@ public class Mapper {
                 .description(organization.getDescription())
                 .avatarUrl(organization.getOrganizationAvatarUrl())
                 .type(organization.getType())
+                .membersCount(organization.getMembersCount())
                 .build();
     }
 

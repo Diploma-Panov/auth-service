@@ -51,8 +51,9 @@ public class OrganizationController {
                 quantityOpt.orElse(10),
                 directionOpt.orElse("asc"),
                 sortByOpt
-                        .filter(sb -> sb.equals("id") || sb.equals("name"))
-                        .orElse("id")
+                        .filter("members"::equals)
+                        .map(sb -> new String[] {"membersCount", "name"})
+                        .orElse(new String[] {"name"})
         );
 
         ServiceUser authenticatedUser = actorContext.getAuthenticatedUser();

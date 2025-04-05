@@ -42,10 +42,10 @@ public class OrganizationMemberDao {
         return organizationMemberRepository.countAllByOrganizationSlug(slug);
     }
 
-    public void createNewMember(Organization organization, ServiceUser serviceUser, OrganizationMember member) {
+    public OrganizationMember createNewMember(Organization organization, ServiceUser serviceUser, OrganizationMember member) {
         organization.addMember(member);
         serviceUser.addOrganizationMember(member);
-        organizationMemberRepository.save(member);
+        return organizationMemberRepository.save(member);
     }
 
     public void updateMemberWithNewRoles(OrganizationMember members, Set<MemberRole> newRoles) {

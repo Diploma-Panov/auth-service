@@ -4,6 +4,7 @@ import com.mpanov.diploma.data.OrganizationScope;
 import com.mpanov.diploma.data.OrganizationType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -31,7 +32,7 @@ public class Organization {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     @EqualsAndHashCode.Include
     private String name;
 
@@ -64,6 +65,9 @@ public class Organization {
     )
     @ToString.Exclude
     private ServiceUser creatorUser;
+
+    @Formula("(SELECT COUNT(*) FROM organization_members om WHERE om.organization_id = id)")
+    private int membersCount;
 
     @OneToMany(
             mappedBy = "organization",

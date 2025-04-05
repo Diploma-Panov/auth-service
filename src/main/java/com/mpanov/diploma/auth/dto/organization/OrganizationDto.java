@@ -29,4 +29,6 @@ public class OrganizationDto {
 
     private OrganizationType type;
 
+    private Integer membersCount;
+
 }

@@ -53,7 +53,7 @@ public class OrganizationMembersService {
         return organizationMemberDao.countOrganizationMembersBySlug(slug);
     }
 
-    public void inviteNewOrganizationMember(String slug, InviteMemberDto dto) {
+    public OrganizationMember inviteNewOrganizationMember(String slug, InviteMemberDto dto) {
         log.info("inviteNewOrganizationMember: slug={}, dto={}", slug, dto);
 
         String normalizedEmail = EmailUtils.normalizeEmail(dto.getEmail());
@@ -87,7 +87,7 @@ public class OrganizationMembersService {
                 .allowedAllUrls(dto.getAllowedAllUrls())
                 .build();
 
-        organizationMemberDao.createNewMember(organization, user, member);
+        return organizationMemberDao.createNewMember(organization, user, member);
     }
 
     public void updateMemberRoles(String organizationSlug, ServiceUser actorUser, UpdateMemberRolesDto dto, Long memberId) {
