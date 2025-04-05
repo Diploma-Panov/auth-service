@@ -1,7 +1,9 @@
 package com.mpanov.diploma.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mpanov.diploma.auth.dao.ServiceUserDao;
 import com.mpanov.diploma.auth.dto.user.UpdateUserInfoByAdminDto;
+import com.mpanov.diploma.auth.dto.user.UpdateUserProfilePictureDto;
 import com.mpanov.diploma.auth.dto.user.UserSignupDto;
 import com.mpanov.diploma.auth.model.ServiceUser;
 import com.mpanov.diploma.auth.utils.UserTestUtils;
@@ -41,6 +43,9 @@ public class ServiceUserAdminControllerTest {
 
     @Autowired
     private PasswordService passwordService;
+
+    @Autowired
+    private ServiceUserDao serviceUserDao;
 
     private ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> adminData;
 
@@ -139,31 +144,159 @@ public class ServiceUserAdminControllerTest {
     @Test
     @DisplayName("Should not allow non-admin user to change other user's info")
     public void shouldNotAllowNonAdminUserToChangeOtherUsers() throws Exception {
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> userData1 =
+                userTestUtils.signupRandomUser();
 
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> userData2 =
+                userTestUtils.signupRandomUser();
+
+        String accessToken = userData1.right.getAccessToken();
+
+        UpdateUserInfoByAdminDto dto = new UpdateUserInfoByAdminDto();
+        String body = objectMapper.writeValueAsString(dto);
+
+        mockMvc.perform(patch(API_ADMIN + "/users/" + userData2.middle.getId() + "/info")
+                        .header("Authorization", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.errors.length()").value(1))
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("Access Denied"))
+                .andExpect(jsonPath("$.errors[0].errorType").value(ServiceErrorType.ACCESS_DENIED.toString()))
+                .andExpect(jsonPath("$.errors[0].errorClass").value(AuthorizationDeniedException.class.getSimpleName()));
     }
 
     @Test
     @DisplayName("Should update profile picture of user by admin")
     public void shouldUpdateProfilePictureByAdmin() throws Exception {
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> userData =
+                userTestUtils.signupRandomUser();
+        ServiceUser user = userData.middle;
 
+        String userAccessToken = userData.right.getAccessToken();
+        String adminAccessToken = adminData.right.getAccessToken();
+
+        UpdateUserProfilePictureDto dto = new UpdateUserProfilePictureDto(
+                RandomUtils.generateRandomAlphabeticalString(100)
+        );
+        String body = objectMapper.writeValueAsString(dto);
+
+        mockMvc.perform(put(API_ADMIN + "/users/" + userData.middle.getId() + "/profile-picture")
+                        .header("Authorization", adminAccessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.payload.id").value(user.getId()))
+                .andExpect(jsonPath("$.payload.firstname").value(user.getFirstname()))
+                .andExpect(jsonPath("$.payload.lastname").value(user.getLastname()))
+                .andExpect(jsonPath("$.payload.email").value(user.getEmail()))
+                .andExpect(jsonPath("$.payload.companyName").value(user.getCompanyName()))
+                .andExpect(jsonPath("$.payload.role").value(user.getSystemRole().toString()))
+                .andExpect(jsonPath("$.payload.profilePictureUrl").isString());
+
+        mockMvc.perform(get(API_USER + "/personal-info")
+                        .header("Authorization", userAccessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.payload.id").value(user.getId()))
+                .andExpect(jsonPath("$.payload.firstname").value(user.getFirstname()))
+                .andExpect(jsonPath("$.payload.lastname").value(user.getLastname()))
+                .andExpect(jsonPath("$.payload.email").value(user.getEmail()))
+                .andExpect(jsonPath("$.payload.companyName").value(user.getCompanyName()))
+                .andExpect(jsonPath("$.payload.profilePictureUrl").isString());
     }
 
     @Test
     @DisplayName("Should not allow non-admin user to update other user's profile pictures")
     public void shouldNotAllowNonAdminUserToUpdateOtherUsers() throws Exception {
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> userData1 =
+                userTestUtils.signupRandomUser();
 
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> userData2 =
+                userTestUtils.signupRandomUser();
+
+        String accessToken = userData1.right.getAccessToken();
+
+        UpdateUserProfilePictureDto dto = new UpdateUserProfilePictureDto(
+                RandomUtils.generateRandomAlphabeticalString(100)
+        );
+        String body = objectMapper.writeValueAsString(dto);
+
+        mockMvc.perform(put(API_ADMIN + "/users/" + userData2.middle.getId() + "/profile-picture")
+                        .header("Authorization", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.errors.length()").value(1))
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("Access Denied"))
+                .andExpect(jsonPath("$.errors[0].errorType").value(ServiceErrorType.ACCESS_DENIED.toString()))
+                .andExpect(jsonPath("$.errors[0].errorClass").value(AuthorizationDeniedException.class.getSimpleName()));
     }
 
     @Test
     @DisplayName("Should remove profile picture of user by admin")
     public void shouldRemoveProfilePictureByAdmin() throws Exception {
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> userData =
+                userTestUtils.signupRandomUser();
+        ServiceUser u = userData.middle;
 
+        serviceUserDao.updateWithProfilePictureUrl(userData.middle, "https://test.com");
+
+        String accessToken = adminData.right.getAccessToken();
+
+        mockMvc.perform(get(API_ADMIN + "/users/" + userData.middle.getId() + "/info")
+                        .header("Authorization", accessToken))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.payload.id").value(u.getId()))
+                .andExpect(jsonPath("$.payload.profilePictureUrl").value("https://test.com"));
+
+        mockMvc.perform(delete(API_ADMIN + "/users/" + userData.middle.getId() + "/profile-picture")
+                        .header("Authorization", accessToken))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.payload.id").value(u.getId()))
+                .andExpect(jsonPath("$.payload.profilePictureUrl").isEmpty());
+
+        mockMvc.perform(delete(API_ADMIN + "/users/" + userData.middle.getId() + "/profile-picture")
+                        .header("Authorization", accessToken))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.payload.id").value(u.getId()))
+                .andExpect(jsonPath("$.payload.profilePictureUrl").isEmpty());
     }
 
     @Test
     @DisplayName("Should not allow non-admin user to remove other user's profile pictures")
     public void shouldNotAllowNonAdminUserToRemoveOtherUsers() throws Exception {
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> userData =
+                userTestUtils.signupRandomUser();
+        ServiceUser u = userData.middle;
 
+        serviceUserDao.updateWithProfilePictureUrl(userData.middle, "https://test.com");
+
+        String accessToken = userData.right.getAccessToken();
+
+        mockMvc.perform(delete(API_ADMIN + "/users/" + userData.middle.getId() + "/profile-picture")
+                        .header("Authorization", accessToken))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.errors.length()").value(1))
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("Access Denied"))
+                .andExpect(jsonPath("$.errors[0].errorType").value(ServiceErrorType.ACCESS_DENIED.toString()))
+                .andExpect(jsonPath("$.errors[0].errorClass").value(AuthorizationDeniedException.class.getSimpleName()));
     }
 
 }
