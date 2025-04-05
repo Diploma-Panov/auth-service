@@ -1,5 +1,6 @@
 package com.mpanov.diploma.auth.utils;
 
+import com.mpanov.diploma.auth.dao.ServiceUserDao;
 import com.mpanov.diploma.auth.dto.organization.CreateOrganizationDto;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.ServiceUser;
@@ -9,8 +10,6 @@ import com.mpanov.diploma.utils.RandomUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Random;
-
 @Service
 @RequiredArgsConstructor
 public class OrganizationTestUtils {
@@ -18,20 +17,9 @@ public class OrganizationTestUtils {
     private final OrganizationService organizationService;
 
     private final CommonTestUtils commonTestUtils;
+    private final ServiceUserDao serviceUserDao;
 
-    public Organization createTestShortenerOrganizationForUser(ServiceUser user) {
-        CreateOrganizationDto dto = CreateOrganizationDto.builder()
-                .name(RandomUtils.generateRandomAlphabeticalString(20))
-                .slug(this.generateRandomSlug())
-                .scope(OrganizationScope.SHORTENER_SCOPE)
-                .url(commonTestUtils.generateRandomUrl())
-                .description(RandomUtils.generateRandomAlphabeticalString(30))
-                .avatarBase64(RandomUtils.generateRandomAlphabeticalString(100))
-                .build();
-        return organizationService.createOrganizationByUser(user, dto);
-    }
-
-    public Organization createTestOrganizationForUser(ServiceUser user, String name) {
+    public void createTestOrganizationForUser(ServiceUser user, String name) {
         CreateOrganizationDto dto = CreateOrganizationDto.builder()
                 .name(name)
                 .slug(this.generateRandomSlug())
@@ -40,7 +28,7 @@ public class OrganizationTestUtils {
                 .description(RandomUtils.generateRandomAlphabeticalString(30))
                 .avatarBase64(RandomUtils.generateRandomAlphabeticalString(100))
                 .build();
-        return organizationService.createOrganizationByUser(user, dto);
+        organizationService.createOrganizationByUser(user, dto);
     }
 
     public Organization createTestOrganizationForUser(ServiceUser user) {
@@ -52,7 +40,8 @@ public class OrganizationTestUtils {
                 .description(RandomUtils.generateRandomAlphabeticalString(30))
                 .avatarBase64(RandomUtils.generateRandomAlphabeticalString(100))
                 .build();
-        return organizationService.createOrganizationByUser(user, dto);
+        ServiceUser syncedUser = serviceUserDao.getServiceUserByIdThrowable(user.getId());
+        return organizationService.createOrganizationByUser(syncedUser, dto);
     }
 
     public String generateRandomSlug() {

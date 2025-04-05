@@ -75,7 +75,7 @@ public class ServiceUser {
             mappedBy = "creatorUser",
             targetEntity = Organization.class,
             cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY
+            fetch = FetchType.EAGER
     )
     @Builder.Default
     @ToString.Exclude

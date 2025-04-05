@@ -108,17 +108,9 @@ public class OrganizationService {
         log.info("patchOrganizationWithPartialData: for organizationSlug={}, with partialData={}", organizationSlug, partialData);
         Organization organization = this.getOrganizationBySlugThrowable(organizationSlug);
 
-        String newSlug = partialData.getNewSlug();
         String newName = partialData.getNewName();
         String newDescription = partialData.getNewDescription();
         String newUrl = partialData.getNewUrl();
-
-        if (newSlug != null) {
-            if (!StringUtils.equals(organizationSlug, newSlug)) {
-                assertSlugIsUnique(partialData.getNewSlug());
-            }
-            organization.setSlug(newSlug);
-        }
 
         if (newName != null) {
             organization.setName(newName);

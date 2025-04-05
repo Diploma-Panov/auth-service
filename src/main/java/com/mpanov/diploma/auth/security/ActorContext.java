@@ -1,12 +1,11 @@
 package com.mpanov.diploma.auth.security;
 
-import com.mpanov.diploma.auth.dao.OrganizationMemberDao;
 import com.mpanov.diploma.auth.dao.ServiceUserDao;
-import com.mpanov.diploma.auth.model.OrganizationMember;
 import com.mpanov.diploma.auth.model.ServiceUser;
 import com.mpanov.diploma.data.MemberPermission;
 import com.mpanov.diploma.data.MemberRole;
 import com.mpanov.diploma.data.security.JwtUserSubject;
+import com.mpanov.diploma.data.security.OrganizationAccessEntry;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -22,27 +21,33 @@ public class ActorContext {
 
     private final ServiceUserDao serviceUserDao;
 
-    private final OrganizationMemberDao organizationMemberDao;
-
-    public ServiceUser getAuthenticatedUser() {
-        JwtUserSubject subject = (JwtUserSubject) SecurityContextHolder.getContext()
+    public JwtUserSubject getJwtUserSubject() {
+        return (JwtUserSubject) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
+    }
+
+    public ServiceUser getAuthenticatedUser() {
+        JwtUserSubject subject = this.getJwtUserSubject();
         Long userId = subject.getUserId();
         log.debug("getAuthenticatedUser: looking up for user with id={}", userId);
         return serviceUserDao.getServiceUserByIdThrowable(userId);
     }
 
     public void assertHasAccessToOrganization(String organizationSlug, MemberPermission permission) {
-        Long userId = this.getAuthenticatedUser().getId();
-        boolean exists = organizationMemberDao.existsByMemberUserIdAndOrganizationSlug(userId, organizationSlug);
-        if (!exists) {
-            log.warn("User {} does not have access to organization {}", userId, organizationSlug);
-            throw new AuthorizationDeniedException("User " + userId + " does not have access to organization " + organizationSlug);
-        }
+        JwtUserSubject subject = this.getJwtUserSubject();
 
-        OrganizationMember member = organizationMemberDao.getOrganizationMemberByMemberUserIdAndOrganizationSlugThrowable(userId, organizationSlug);
-        Set<MemberRole> roles = member.getRoles();
+        Long userId = subject.getUserId();
+
+        Set<OrganizationAccessEntry> organizations = subject.getOrganizations();
+        OrganizationAccessEntry targetOrganization = organizations.stream()
+                .filter(organization -> organizationSlug.equals(organization.getSlug()))
+                .findFirst()
+                .orElseThrow(() ->
+                        new AuthorizationDeniedException("User " + userId + " does not have access to organization " + organizationSlug)
+                );
+
+        Set<MemberRole> roles = targetOrganization.getRoles();
         for (MemberRole role : roles) {
             if (role.getPermissions().contains(permission)) {
                 return;
