@@ -14,6 +14,7 @@ import com.mpanov.diploma.auth.utils.CommonTestUtils;
 import com.mpanov.diploma.auth.utils.OrganizationMemberTestUtils;
 import com.mpanov.diploma.auth.utils.OrganizationTestUtils;
 import com.mpanov.diploma.auth.utils.UserTestUtils;
+import com.mpanov.diploma.data.MemberRole;
 import com.mpanov.diploma.data.OrganizationScope;
 import com.mpanov.diploma.data.OrganizationType;
 import com.mpanov.diploma.data.dto.ServiceErrorType;
@@ -29,6 +30,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.Set;
 
 import static com.mpanov.diploma.auth.config.SecurityConfig.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -659,6 +662,145 @@ public class OrganizationControllerTest {
                 .andExpect(jsonPath("$.errors[0].errorMessage").value("Cannot remove a permanent organization " + organization.getSlug()))
                 .andExpect(jsonPath("$.errors[0].errorType").value(ServiceErrorType.ORGANIZATION_ACTION_NOT_ALLOWED.toString()))
                 .andExpect(jsonPath("$.errors[0].errorClass").value(OrganizationActionNotAllowed.class.getSimpleName()));
+    }
+
+    @Test
+    @DisplayName("Should allow ORGANIZATION_MANAGER to perform organization actions")
+    public void shouldAllowOrganizationManagerToPerformOrganizationActions() throws Exception {
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> ownerData =
+                userTestUtils.signupRandomUser();
+
+        Organization organization = ownerData.middle.getOrganizations()
+                .stream()
+                .findFirst()
+                .get();
+
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> memberUserData =
+                userTestUtils.signupRandomUser();
+
+        organizationMemberTestUtils.inviteMemberInOrganization(
+                organization,
+                memberUserData.middle,
+                Set.of(
+                        MemberRole.ORGANIZATION_MEMBER,
+                        MemberRole.ORGANIZATION_MANAGER
+                )
+        );
+
+        String refreshToken = memberUserData.getRight().getRefreshToken();
+        String accessToken = userTestUtils.refreshToken(refreshToken).getAccessToken();
+
+        UpdateOrganizationInfoDto updateDto = new UpdateOrganizationInfoDto();
+        String updateBody = objectMapper.writeValueAsString(updateDto);
+
+        mockMvc.perform(patch(API_USER + "/organizations/" + organization.getSlug())
+                        .header("Authorization", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateBody))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        UpdateOrganizationAvatarDto avatarDto = new UpdateOrganizationAvatarDto(
+                RandomUtils.generateRandomAlphabeticalString(100)
+        );
+        String avatarBody = objectMapper.writeValueAsString(avatarDto);
+
+        mockMvc.perform(put(API_USER + "/organizations/" + organization.getSlug() + "/avatar")
+                        .header("Authorization", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(avatarBody))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        mockMvc.perform(delete(API_USER + "/organizations/" + organization.getSlug() + "/avatar")
+                        .header("Authorization", accessToken))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        mockMvc.perform(delete(API_USER + "/organizations/" + organization.getSlug())
+                        .header("Authorization", accessToken))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.errors[0].errorMessage")
+                        .value("User " + memberUserData.middle.getId() + " does not have required permission FULL_ACCESS for organization " + organization.getSlug()))
+                .andExpect(jsonPath("$.errors[0].errorType").value(ServiceErrorType.ACCESS_DENIED.toString()))
+                .andExpect(jsonPath("$.errors[0].errorClass").value(AuthorizationDeniedException.class.getSimpleName()));
+    }
+
+    @Test
+    @DisplayName("Should forbid organization actions to members without required roles")
+    public void shouldForbidOrganizationActionsToMembersWithoutRequiredRoles() throws Exception {
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> ownerData =
+                userTestUtils.signupRandomUser();
+
+        Organization organization = ownerData.middle.getOrganizations()
+                .stream()
+                .findFirst()
+                .get();
+
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> memberUserData =
+                userTestUtils.signupRandomUser();
+
+        organizationMemberTestUtils.inviteMemberInOrganization(
+                organization,
+                memberUserData.middle,
+                Set.of(
+                        MemberRole.ORGANIZATION_MEMBER,
+                        MemberRole.ORGANIZATION_MEMBERS_MANAGER,
+                        MemberRole.ORGANIZATION_URLS_MANAGER
+                )
+        );
+
+        String refreshToken = memberUserData.getRight().getRefreshToken();
+        String accessToken = userTestUtils.refreshToken(refreshToken).getAccessToken();
+
+        UpdateOrganizationInfoDto updateDto = new UpdateOrganizationInfoDto();
+        String updateBody = objectMapper.writeValueAsString(updateDto);
+
+        mockMvc.perform(patch(API_USER + "/organizations/" + organization.getSlug())
+                        .header("Authorization", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateBody))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.errors[0].errorMessage")
+                        .value("User " + memberUserData.middle.getId() + " does not have required permission MANAGE_ORGANIZATION for organization " + organization.getSlug()))
+                .andExpect(jsonPath("$.errors[0].errorType").value(ServiceErrorType.ACCESS_DENIED.toString()))
+                .andExpect(jsonPath("$.errors[0].errorClass").value(AuthorizationDeniedException.class.getSimpleName()));
+
+        UpdateOrganizationAvatarDto avatarDto = new UpdateOrganizationAvatarDto(
+                RandomUtils.generateRandomAlphabeticalString(100)
+        );
+        String avatarBody = objectMapper.writeValueAsString(avatarDto);
+
+        mockMvc.perform(put(API_USER + "/organizations/" + organization.getSlug() + "/avatar")
+                        .header("Authorization", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(avatarBody))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.errors[0].errorMessage")
+                        .value("User " + memberUserData.middle.getId() + " does not have required permission MANAGE_ORGANIZATION for organization " + organization.getSlug()))
+                .andExpect(jsonPath("$.errors[0].errorType").value(ServiceErrorType.ACCESS_DENIED.toString()))
+                .andExpect(jsonPath("$.errors[0].errorClass").value(AuthorizationDeniedException.class.getSimpleName()));
+
+        mockMvc.perform(delete(API_USER + "/organizations/" + organization.getSlug() + "/avatar")
+                        .header("Authorization", accessToken))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.errors[0].errorMessage")
+                        .value("User " + memberUserData.middle.getId() + " does not have required permission MANAGE_ORGANIZATION for organization " + organization.getSlug()))
+                .andExpect(jsonPath("$.errors[0].errorType").value(ServiceErrorType.ACCESS_DENIED.toString()))
+                .andExpect(jsonPath("$.errors[0].errorClass").value(AuthorizationDeniedException.class.getSimpleName()));
+
+        mockMvc.perform(delete(API_USER + "/organizations/" + organization.getSlug())
+                        .header("Authorization", accessToken))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.errors[0].errorMessage")
+                        .value("User " + memberUserData.middle.getId() + " does not have required permission FULL_ACCESS for organization " + organization.getSlug()))
+                .andExpect(jsonPath("$.errors[0].errorType").value(ServiceErrorType.ACCESS_DENIED.toString()))
+                .andExpect(jsonPath("$.errors[0].errorClass").value(AuthorizationDeniedException.class.getSimpleName()));
     }
 
 }

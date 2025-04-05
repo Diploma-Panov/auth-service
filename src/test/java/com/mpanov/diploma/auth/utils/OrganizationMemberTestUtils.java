@@ -18,8 +18,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class OrganizationMemberTestUtils {
     
-    private final OrganizationDao organizationDao;
-
     private final OrganizationMembersService organizationMembersService;
 
     private final CommonTestUtils commonTestUtils;
@@ -32,6 +30,19 @@ public class OrganizationMemberTestUtils {
                 .allowedAllUrls(false)
                 .allowedUrls(new Long[] {1L, 2L, 10L})
                 .roles(Set.of(MemberRole.ORGANIZATION_MEMBER, MemberRole.ORGANIZATION_URLS_MANAGER))
+                .build();
+        OrganizationMember organizationMember = organizationMembersService.inviteNewOrganizationMember(organization.getSlug(), dto);
+        return ImmutablePair.of(organizationMember.getMemberUser(), organizationMember);
+    }
+
+    public ImmutablePair<ServiceUser, OrganizationMember> inviteMemberInOrganization(Organization organization, ServiceUser user, Set<MemberRole> roles) {
+        InviteMemberDto dto = InviteMemberDto.builder()
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .email(user.getEmail())
+                .allowedAllUrls(false)
+                .allowedUrls(new Long[] {1L, 2L, 10L})
+                .roles(roles)
                 .build();
         OrganizationMember organizationMember = organizationMembersService.inviteNewOrganizationMember(organization.getSlug(), dto);
         return ImmutablePair.of(organizationMember.getMemberUser(), organizationMember);
