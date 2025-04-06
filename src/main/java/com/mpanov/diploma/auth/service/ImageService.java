@@ -27,8 +27,15 @@ public class ImageService {
     @Value("${s3.image-bucket}")
     private String imageBucket;
 
+    @Value("${platform.is-test}")
+    private boolean isTest;
+
     public String saveOrganizationAvatar(byte[] imageBytes, Long organizationId) {
         log.info("saveOrganizationAvatar: for organizationId={}", organizationId);
+        if (isTest) {
+            log.info("saveOrganizationAvatar: skipping...");
+            return RandomUtils.generateRandomAlphabeticalString(20);
+        }
         String token = RandomUtils.generateRandomAlphabeticalString(10);
         String key = platformEnv + "/images/organization/" + organizationId + "/" + token + ".png";
 
@@ -49,6 +56,10 @@ public class ImageService {
 
     public void removeOrganizationAvatar(Long organizationId, String url) {
         log.info("removeOrganizationAvatar: for organizationId={} and url={}", organizationId, url);
+        if (isTest) {
+            log.info("removeOrganizationAvatar: skipping...");
+            return;
+        }
         String key = extractKeyFromUrl(url);
         if (key != null) {
             try {
@@ -69,6 +80,11 @@ public class ImageService {
 
     public String saveUserProfilePicture(Long userId, byte[] imageBytes) {
         log.info("saveUserProfilePicture: for userId={}", userId);
+        if (isTest) {
+            log.info("saveUserProfilePicture: skipping...");
+            return RandomUtils.generateRandomAlphabeticalString(20);
+        }
+
         String token = RandomUtils.generateRandomAlphabeticalString(10);
         String key = platformEnv + "/images/user/" + userId + "/" + token + ".png";
 
@@ -89,6 +105,10 @@ public class ImageService {
 
     public void removeUserProfilePicture(Long userId, String url) {
         log.info("removeUserProfilePicture: for userId={} and url={}", userId, url);
+        if (isTest) {
+            log.info("removeUserProfilePicture: skipping...");
+            return;
+        }
         String key = extractKeyFromUrl(url);
         if (key != null) {
             try {
