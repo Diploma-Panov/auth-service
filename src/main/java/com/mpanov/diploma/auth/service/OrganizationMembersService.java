@@ -157,6 +157,10 @@ public class OrganizationMembersService {
             throw new OrganizationActionNotAllowed("Organization members are not allowed to update their own URLs");
         }
 
+        if (!actorMember.getAllowedAllUrls() && dto.getAllowedAllUrls()) {
+            throw new OrganizationActionNotAllowed("Organization members cannot grant access to URLs they have no access to");
+        }
+
         Set<Long> newUrls = dto.getNewUrlsIds();
         Set<Long> memberUrls = new HashSet<>(Arrays.asList(member.getMemberUrls()));
         Set<Long> actorMemberUrls = new HashSet<>(Arrays.asList(actorMember.getMemberUrls()));

@@ -3,6 +3,7 @@ package com.mpanov.diploma.auth.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpanov.diploma.auth.dao.OrganizationMemberDao;
+import com.mpanov.diploma.auth.dao.ServiceUserDao;
 import com.mpanov.diploma.auth.dto.organization.members.InviteMemberDto;
 import com.mpanov.diploma.auth.dto.organization.members.UpdateMemberRolesDto;
 import com.mpanov.diploma.auth.dto.organization.members.UpdateMemberUrlsDto;
@@ -19,6 +20,7 @@ import com.mpanov.diploma.data.dto.ServiceErrorType;
 import com.mpanov.diploma.data.dto.TokenResponseDto;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.aspectj.weaver.ast.Or;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,12 +32,11 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.mpanov.diploma.auth.config.SecurityConfig.API_USER;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -63,6 +64,8 @@ public class OrganizationMembersControllerTest {
     private CommonTestUtils commonTestUtils;
     @Autowired
     private OrganizationMemberDao organizationMemberDao;
+    @Autowired
+    private ServiceUserDao serviceUserDao;
 
     @Test
     @DisplayName("Should return organization members list")
@@ -154,9 +157,9 @@ public class OrganizationMembersControllerTest {
         String email3 = commonTestUtils.generateRandomEmail();
         String email4 = owner.getEmail();
 
-        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, accessToken, email1);
-        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, accessToken, email2);
-        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, accessToken, email3);
+        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email1);
+        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email2);
+        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email3);
 
         List<String> expectedEmails = new ArrayList<>();
         expectedEmails.add(email1);
@@ -200,9 +203,9 @@ public class OrganizationMembersControllerTest {
         String email3 = commonTestUtils.generateRandomEmail();
         String email4 = owner.getEmail();
 
-        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, accessToken, email1);
-        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, accessToken, email2);
-        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, accessToken, email3);
+        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email1);
+        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email2);
+        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email3);
 
         List<String> expectedEmails = new ArrayList<>();
         expectedEmails.add(email1);
@@ -467,15 +470,15 @@ public class OrganizationMembersControllerTest {
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.errors[0].errorMessage").value("Actor member does not have any member management role"))
-                .andExpect(jsonPath("$.errors[0].errorType").value("Actor member does not have any member management role"))
-                .andExpect(jsonPath("$.errors[0].errorClass").value("Actor member does not have any member management role"));
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("Organization members are not allowed to update their own URLs"))
+                .andExpect(jsonPath("$.errors[0].errorType").value(ServiceErrorType.ORGANIZATION_ACTION_NOT_ALLOWED.toString()))
+                .andExpect(jsonPath("$.errors[0].errorClass").value(OrganizationActionNotAllowed.class.getSimpleName()));
     }
 
     @Test
-    @DisplayName("Should not allow URL update if actor lacks access to granted URLs")
-    public void shouldNotAllowUpdateUrlsWithoutSufficientRights() throws Exception {
+    @DisplayName("Should not allow udpate URLs if manager does not have access to these urls")
+    public void shouldNotAllowUpdateUrlsIfManagerDoesNotHaveAccessToTheseUrls() throws Exception {
         ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> ownerData =
                 userTestUtils.signupRandomUser();
         ServiceUser owner = ownerData.getMiddle();
@@ -485,14 +488,21 @@ public class OrganizationMembersControllerTest {
         ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> managerData =
                 userTestUtils.signupRandomUser();
         ServiceUser manager = managerData.getMiddle();
-        String managerAccessToken = managerData.getRight().getAccessToken();
-        organizationMemberTestUtils.inviteMemberInOrganization(organization, manager, Set.of(MemberRole.ORGANIZATION_URLS_MANAGER));
+        organizationMemberTestUtils.inviteMemberInOrganization(
+                organization,
+                manager,
+                Set.of(MemberRole.ORGANIZATION_URLS_MANAGER),
+                new Long[] {1L, 2L, 7L}, false
+        );
+
+        String managerRefreshToken = managerData.getRight().getRefreshToken();
+        String managerAccessToken = userTestUtils.refreshToken(managerRefreshToken).getAccessToken();
 
         ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> targetData =
                 userTestUtils.signupRandomUser();
         ServiceUser target = targetData.getMiddle();
-        organizationMemberTestUtils.inviteMemberInOrganization(organization, target, Set.of(MemberRole.ORGANIZATION_MEMBER));
-        Long targetMemberId = organizationMemberTestUtils.getMemberIdByUserAndOrganization(target, orgSlug);
+        ImmutablePair<ServiceUser, ?> invitedMember = organizationMemberTestUtils.inviteMemberInOrganization(organization, target, Set.of(MemberRole.ORGANIZATION_MEMBER), new Long[0], false);
+        Long targetMemberId = organizationMemberTestUtils.getMemberIdByUserAndOrganization(invitedMember.left, orgSlug);
 
         UpdateMemberUrlsDto updateUrlsDto = new UpdateMemberUrlsDto();
         updateUrlsDto.setNewUrlsIds(Set.of(1L, 3L));
@@ -503,10 +513,10 @@ public class OrganizationMembersControllerTest {
                         .header("Authorization", managerAccessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.errors[0].errorMessage").value("Actor member does not have any member management role"))
-                .andExpect(jsonPath("$.errors[0].errorType").value("Actor member does not have any member management role"))
-                .andExpect(jsonPath("$.errors[0].errorClass").value("Actor member does not have any member management role"));
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("Organization members cannot grant access to URLs they have no access to"))
+                .andExpect(jsonPath("$.errors[0].errorType").value(ServiceErrorType.ORGANIZATION_ACTION_NOT_ALLOWED.toString()))
+                .andExpect(jsonPath("$.errors[0].errorClass").value(OrganizationActionNotAllowed.class.getSimpleName()));
     }
 
     @Test
@@ -521,17 +531,24 @@ public class OrganizationMembersControllerTest {
         ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> managerData =
                 userTestUtils.signupRandomUser();
         ServiceUser manager = managerData.getMiddle();
-        String managerAccessToken = managerData.getRight().getAccessToken();
-        organizationMemberTestUtils.inviteMemberInOrganization(organization, manager, Set.of(MemberRole.ORGANIZATION_ADMIN));
+        organizationMemberTestUtils.inviteMemberInOrganization(
+                organization,
+                manager,
+                Set.of(MemberRole.ORGANIZATION_URLS_MANAGER),
+                new Long[0], true
+        );
+
+        String managerRefreshToken = managerData.getRight().getRefreshToken();
+        String managerAccessToken = userTestUtils.refreshToken(managerRefreshToken).getAccessToken();
 
         ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> targetData =
                 userTestUtils.signupRandomUser();
         ServiceUser target = targetData.getMiddle();
-        organizationMemberTestUtils.inviteMemberInOrganization(organization, target, Set.of(MemberRole.ORGANIZATION_MEMBER));
-        Long targetMemberId = organizationMemberTestUtils.getMemberIdByUserAndOrganization(target, orgSlug);
+        ImmutablePair<ServiceUser, ?> invitedMember = organizationMemberTestUtils.inviteMemberInOrganization(organization, target, Set.of(MemberRole.ORGANIZATION_MEMBER));
+        Long targetMemberId = organizationMemberTestUtils.getMemberIdByUserAndOrganization(invitedMember.left, orgSlug);
 
         UpdateMemberUrlsDto updateUrlsDto = new UpdateMemberUrlsDto();
-        updateUrlsDto.setNewUrlsIds(Set.of(3L, 4L));
+        updateUrlsDto.setNewUrlsIds(Set.of(1L, 5L, 11L, 42L, 99999L, 423L, 24345245L));
         updateUrlsDto.setAllowedAllUrls(false);
         String body = objectMapper.writeValueAsString(updateUrlsDto);
 
@@ -541,6 +558,10 @@ public class OrganizationMembersControllerTest {
                         .content(body))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.message").value("SUCCESS"));
+
+        OrganizationMember updatedMember = organizationMemberDao.getOrganizationMemberByIdThrowable(targetMemberId);
+        assertThat(Arrays.stream(updatedMember.getMemberUrls()).collect(Collectors.toSet())).isEqualTo(updateUrlsDto.getNewUrlsIds());
+        assertThat(updatedMember.getAllowedAllUrls()).isEqualTo(updateUrlsDto.getAllowedAllUrls());
     }
 
     @Test
@@ -555,17 +576,24 @@ public class OrganizationMembersControllerTest {
         ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> managerData =
                 userTestUtils.signupRandomUser();
         ServiceUser manager = managerData.getMiddle();
-        String managerAccessToken = managerData.getRight().getAccessToken();
-        organizationMemberTestUtils.inviteMemberInOrganization(organization, manager, Set.of(MemberRole.ORGANIZATION_URLS_MANAGER));
+        organizationMemberTestUtils.inviteMemberInOrganization(
+                organization,
+                manager,
+                Set.of(MemberRole.ORGANIZATION_URLS_MANAGER),
+                new Long[] {1L, 5L, 30L, 42L}, false
+        );
+
+        String managerRefreshToken = managerData.getRight().getRefreshToken();
+        String managerAccessToken = userTestUtils.refreshToken(managerRefreshToken).getAccessToken();
 
         ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> targetData =
                 userTestUtils.signupRandomUser();
         ServiceUser target = targetData.getMiddle();
-        organizationMemberTestUtils.inviteMemberInOrganization(organization, target, Set.of(MemberRole.ORGANIZATION_MEMBER));
-        Long targetMemberId = organizationMemberTestUtils.getMemberIdByUserAndOrganization(target, orgSlug);
+        ImmutablePair<ServiceUser, ?> invitedMember = organizationMemberTestUtils.inviteMemberInOrganization(organization, target, Set.of(MemberRole.ORGANIZATION_MEMBER));
+        Long targetMemberId = organizationMemberTestUtils.getMemberIdByUserAndOrganization(invitedMember.left, orgSlug);
 
         UpdateMemberUrlsDto updateUrlsDto = new UpdateMemberUrlsDto();
-        updateUrlsDto.setNewUrlsIds(Set.of(2L, 3L));
+        updateUrlsDto.setNewUrlsIds(Set.of(1L, 5L, 42L));
         updateUrlsDto.setAllowedAllUrls(false);
         String body = objectMapper.writeValueAsString(updateUrlsDto);
 
@@ -622,5 +650,57 @@ public class OrganizationMembersControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.message").value("SUCCESS"));
+    }
+
+    @Test
+    @DisplayName("Should not allow deletion of organization owner by another member")
+    public void shouldNotAllowDeletionOfOrganizationOwner() throws Exception {
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> ownerData =
+                userTestUtils.signupRandomUser();
+        ServiceUser owner = ownerData.getMiddle();
+        Organization org = owner.getOrganizations().iterator().next();
+        String orgSlug = org.getSlug();
+        Long ownerMemberId = organizationMemberTestUtils.getMemberIdByUserAndOrganization(owner, orgSlug);
+
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> adminData =
+                userTestUtils.signupNewAdminUser();
+        ServiceUser admin = adminData.getMiddle();
+        organizationMemberTestUtils.inviteMemberInOrganization(org, admin, Set.of(MemberRole.ORGANIZATION_ADMIN));
+        String adminRefreshToken = adminData.right.getRefreshToken();
+        String adminAccessToken = userTestUtils.refreshToken(adminRefreshToken).getAccessToken();
+
+        mockMvc.perform(delete(API_USER + "/organizations/" + orgSlug + "/members/" + ownerMemberId)
+                        .header("Authorization", adminAccessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("Impossible to remove organization owner"))
+                .andExpect(jsonPath("$.errors[0].errorType").value(ServiceErrorType.ORGANIZATION_ACTION_NOT_ALLOWED.toString()))
+                .andExpect(jsonPath("$.errors[0].errorClass").value(OrganizationActionNotAllowed.class.getSimpleName()));
+    }
+
+    @Test
+    @DisplayName("Should not allow self-deletion of organization membership")
+    public void shouldNotAllowSelfDeletionOfOrganizationMember() throws Exception {
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> userData =
+                userTestUtils.signupRandomUser();
+        ServiceUser user = userData.getMiddle();
+        Organization org = user.getOrganizations().iterator().next();
+        String orgSlug = org.getSlug();
+
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> adminData =
+                userTestUtils.signupNewAdminUser();
+        ServiceUser admin = adminData.getMiddle();
+        ImmutablePair<?, OrganizationMember> adminMemberData = organizationMemberTestUtils.inviteMemberInOrganization(org, admin, Set.of(MemberRole.ORGANIZATION_ADMIN));
+
+        String adminRefreshToken = adminData.right.getRefreshToken();
+        String adminAccessToken = userTestUtils.refreshToken(adminRefreshToken).getAccessToken();
+
+        mockMvc.perform(delete(API_USER + "/organizations/" + orgSlug + "/members/" + adminMemberData.right.getId())
+                        .header("Authorization", adminAccessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("Organization members cannot remove themselves from organization"))
+                .andExpect(jsonPath("$.errors[0].errorClass").value(OrganizationActionNotAllowed.class.getSimpleName()))
+                .andExpect(jsonPath("$.errors[0].errorType").value(ServiceErrorType.ORGANIZATION_ACTION_NOT_ALLOWED.toString()));
     }
 }
