@@ -1,6 +1,5 @@
 package com.mpanov.diploma.auth.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpanov.diploma.auth.dto.organization.members.InviteMemberDto;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.OrganizationMember;
@@ -22,9 +21,7 @@ public class OrganizationMemberTestUtils {
 
     private final CommonTestUtils commonTestUtils;
 
-    private final ObjectMapper objectMapper;
-
-    public ImmutablePair<ServiceUser, OrganizationMember> inviteMemberInOrganization(Organization organization) {
+    public void inviteMemberInOrganization(Organization organization) {
         InviteMemberDto dto = InviteMemberDto.builder()
                 .firstname(RandomUtils.generateRandomAlphabeticalString(20))
                 .lastname(RandomUtils.generateRandomAlphabeticalString(20))
@@ -33,8 +30,7 @@ public class OrganizationMemberTestUtils {
                 .allowedUrls(new Long[] {1L, 2L, 10L})
                 .roles(Set.of(MemberRole.ORGANIZATION_MEMBER, MemberRole.ORGANIZATION_URLS_MANAGER))
                 .build();
-        OrganizationMember organizationMember = organizationMembersService.inviteNewOrganizationMember(organization.getSlug(), dto);
-        return ImmutablePair.of(organizationMember.getMemberUser(), organizationMember);
+        organizationMembersService.inviteNewOrganizationMember(organization.getSlug(), dto);
     }
 
     public ImmutablePair<ServiceUser, OrganizationMember> inviteMemberInOrganization(Organization organization, ServiceUser user, Set<MemberRole> roles) {
@@ -71,7 +67,7 @@ public class OrganizationMemberTestUtils {
                 .orElseThrow(() -> new RuntimeException("Member not found for organization " + orgSlug));
     }
 
-    public void inviteMemberWithEmail(String orgSlug, String email) throws Exception {
+    public void inviteMemberWithEmail(String orgSlug, String email) {
         InviteMemberDto inviteDto = InviteMemberDto.builder()
                 .firstname("Test")
                 .lastname("User")
@@ -80,7 +76,6 @@ public class OrganizationMemberTestUtils {
                 .allowedUrls(new Long[]{1L})
                 .roles(Set.of(MemberRole.ORGANIZATION_MEMBER))
                 .build();
-        String body = objectMapper.writeValueAsString(inviteDto);
         organizationMembersService.inviteNewOrganizationMember(orgSlug, inviteDto);
     }
 

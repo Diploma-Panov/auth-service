@@ -3,7 +3,6 @@ package com.mpanov.diploma.auth.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpanov.diploma.auth.dao.OrganizationMemberDao;
-import com.mpanov.diploma.auth.dao.ServiceUserDao;
 import com.mpanov.diploma.auth.dto.organization.members.InviteMemberDto;
 import com.mpanov.diploma.auth.dto.organization.members.UpdateMemberRolesDto;
 import com.mpanov.diploma.auth.dto.organization.members.UpdateMemberUrlsDto;
@@ -20,7 +19,6 @@ import com.mpanov.diploma.data.dto.ServiceErrorType;
 import com.mpanov.diploma.data.dto.TokenResponseDto;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.aspectj.weaver.ast.Or;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -60,17 +58,16 @@ public class OrganizationMembersControllerTest {
 
     @Autowired
     private OrganizationMemberTestUtils organizationMemberTestUtils;
+
     @Autowired
     private CommonTestUtils commonTestUtils;
+
     @Autowired
     private OrganizationMemberDao organizationMemberDao;
-    @Autowired
-    private ServiceUserDao serviceUserDao;
 
     @Test
     @DisplayName("Should return organization members list")
     public void shouldGetOrganizationMembersList() throws Exception {
-        // Sign up a new user; the signup utility also creates a default organization.
         ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> userData = userTestUtils.signupRandomUser();
         ServiceUser owner = userData.getMiddle();
         String accessToken = userData.getRight().getAccessToken();
