@@ -1,10 +1,13 @@
 package com.mpanov.diploma.auth.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpanov.diploma.auth.dao.ServiceUserDao;
+import com.mpanov.diploma.auth.dto.user.ShortCodeResponseDto;
 import com.mpanov.diploma.auth.dto.user.UpdateUserInfoByAdminDto;
 import com.mpanov.diploma.auth.dto.user.UpdateUserProfilePictureDto;
 import com.mpanov.diploma.auth.dto.user.UserSignupDto;
+import com.mpanov.diploma.auth.exception.ShortCodeExpiredException;
 import com.mpanov.diploma.auth.model.ServiceUser;
 import com.mpanov.diploma.auth.utils.CommonTestUtils;
 import com.mpanov.diploma.auth.utils.UserTestUtils;
@@ -24,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
 
 import static com.mpanov.diploma.auth.config.SecurityConfig.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -55,6 +59,64 @@ public class ServiceUserAdminControllerTest {
     }
 
     @Test
+    @DisplayName("Should login as user by admin")
+    public void shouldLoginAsUserByAdmin() throws Exception {
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> adminData =
+                userTestUtils.signupNewAdminUser();
+
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> userData =
+                userTestUtils.signupRandomUser();
+
+        String codeResponseString = mockMvc.perform(get(API_ADMIN + "/users/" + userData.middle.getId() + "/login-as-user")
+                .header("Authorization", adminData.right.getAccessToken()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.payloadType").value(ShortCodeResponseDto.class.getSimpleName()))
+                .andExpect(jsonPath("$.payload.shortCode").isString())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JsonNode codeRoot = objectMapper.readTree(codeResponseString);
+        JsonNode codePayloadNode = codeRoot.path("payload");
+        String shortCode = objectMapper.treeToValue(codePayloadNode, ShortCodeResponseDto.class).getShortCode();
+
+        assertThat(shortCode).isNotNull();
+
+        String tokenResponseString = mockMvc.perform(get(API_PUBLIC + "/users/exchange-short-code/" + shortCode))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.payloadType").value(TokenResponseDto.class.getSimpleName()))
+                .andExpect(jsonPath("$.payload.accessToken").isString())
+                .andExpect(jsonPath("$.payload.refreshToken").isEmpty())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JsonNode tokenRoot = objectMapper.readTree(tokenResponseString);
+        JsonNode tokenPayloadNode = tokenRoot.path("payload");
+        String accessToken = objectMapper.treeToValue(tokenPayloadNode, TokenResponseDto.class).getAccessToken();
+
+        assertThat(accessToken).isNotNull();
+        assertThat(accessToken).startsWith("Bearer ");
+
+        mockMvc.perform(get(API_USER + "/personal-info")
+                        .header("Authorization", accessToken))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.payload.id").value(userData.middle.getId()));
+
+        Thread.sleep(60_000);
+        mockMvc.perform(get(API_PUBLIC + "/users/exchange-short-code/" + shortCode))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.errors.length()").value(1))
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("ShortCode " + shortCode + " expired"))
+                .andExpect(jsonPath("$.errors[0].errorType").value(ServiceErrorType.SHORT_CODE_EXPIRED.toString()))
+                .andExpect(jsonPath("$.errors[0].errorClass").value(ShortCodeExpiredException.class.getSimpleName()));
+    }
+
+    @Test
     @DisplayName("Should get user info by admin")
     public void shouldGetUserInfoByAdmin() throws Exception {
         ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> userData =
@@ -65,7 +127,6 @@ public class ServiceUserAdminControllerTest {
 
         mockMvc.perform(get(API_ADMIN + "/users/" + userData.middle.getId() + "/info")
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.payload.id").value(u.getId()))
@@ -86,7 +147,6 @@ public class ServiceUserAdminControllerTest {
 
         mockMvc.perform(get(API_ADMIN + "/users/" + userData.middle.getId() + "/info")
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors.length()").value(1))
@@ -117,7 +177,6 @@ public class ServiceUserAdminControllerTest {
                         .header("Authorization", adminAccessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.payload.id").value(userData.middle.getId()))
@@ -134,7 +193,6 @@ public class ServiceUserAdminControllerTest {
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(emptyBody))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.payload.id").isNumber())
@@ -162,7 +220,6 @@ public class ServiceUserAdminControllerTest {
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors.length()").value(1))
@@ -190,7 +247,6 @@ public class ServiceUserAdminControllerTest {
                         .header("Authorization", adminAccessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.payload.id").value(user.getId()))
@@ -204,7 +260,6 @@ public class ServiceUserAdminControllerTest {
         mockMvc.perform(get(API_USER + "/personal-info")
                         .header("Authorization", userAccessToken)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.payload.id").value(user.getId()))
@@ -235,7 +290,6 @@ public class ServiceUserAdminControllerTest {
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors.length()").value(1))
@@ -257,7 +311,6 @@ public class ServiceUserAdminControllerTest {
 
         mockMvc.perform(get(API_ADMIN + "/users/" + userData.middle.getId() + "/info")
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.payload.id").value(u.getId()))
@@ -265,7 +318,6 @@ public class ServiceUserAdminControllerTest {
 
         mockMvc.perform(delete(API_ADMIN + "/users/" + userData.middle.getId() + "/profile-picture")
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.payload.id").value(u.getId()))
@@ -273,7 +325,6 @@ public class ServiceUserAdminControllerTest {
 
         mockMvc.perform(delete(API_ADMIN + "/users/" + userData.middle.getId() + "/profile-picture")
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.payload.id").value(u.getId()))
@@ -292,7 +343,6 @@ public class ServiceUserAdminControllerTest {
 
         mockMvc.perform(delete(API_ADMIN + "/users/" + userData.middle.getId() + "/profile-picture")
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors.length()").value(1))

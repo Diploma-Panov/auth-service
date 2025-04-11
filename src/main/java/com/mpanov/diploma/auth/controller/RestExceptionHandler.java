@@ -79,6 +79,14 @@ public class RestExceptionHandler {
         return composeErrorResponseDto(e, ServiceErrorType.INTERNAL_ERROR);
     }
 
+    @ExceptionHandler(ShortCodeExpiredException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponseDto handleShortCodeExpiredException(HttpServletRequest req, ShortCodeExpiredException e) {
+        logError(req, e);
+        return composeErrorResponseDto(e, ServiceErrorType.SHORT_CODE_EXPIRED);
+    }
+
     @ExceptionHandler(AuthorizationDeniedException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.UNAUTHORIZED)

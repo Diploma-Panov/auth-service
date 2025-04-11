@@ -5,6 +5,7 @@ import com.mpanov.diploma.auth.dto.user.UpdateUserInfoByAdminDto;
 import com.mpanov.diploma.auth.dto.user.UpdateUserInfoDto;
 import com.mpanov.diploma.auth.dto.user.UserSignupDto;
 import com.mpanov.diploma.auth.exception.LoginException;
+import com.mpanov.diploma.auth.exception.ShortCodeExpiredException;
 import com.mpanov.diploma.auth.exception.UserSignupException;
 import com.mpanov.diploma.auth.model.*;
 import com.mpanov.diploma.auth.security.*;
@@ -26,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -40,6 +42,8 @@ public class ServiceUserLogic {
     private final JwtPayloadService jwtPayloadService;
 
     private final ImageService imageService;
+
+    private final CacheService cacheService;
 
     public ServiceUser getServiceUserByIdThrowable(Long id) {
         return serviceUserDao.getServiceUserByIdThrowable(id);
@@ -127,6 +131,30 @@ public class ServiceUserLogic {
         serviceUserDao.updateLoginDate(user.getId());
 
         return new UserAuthentication(subject);
+    }
+
+    public String loginAsUserByAdmin(Long userId) {
+        log.info("loginAsUserByAdmin: userId={}", userId);
+
+        JwtUserSubject subject = this.loginWithUserIdBySystem(userId);
+        String accessToken = jwtPayloadService.getTokensForUserSubject(subject)
+                .getAccessToken();
+        log.debug("loginAsUserByAdmin: generated accessToken for userId={}", userId);
+
+        String shortCode = UUID.randomUUID().toString();
+        cacheService.cacheWithTTL(shortCode, accessToken);
+        log.debug("loginAsUserByAdmin: generated and cached saved shortCode={}", shortCode);
+
+        return shortCode;
+    }
+
+    public TokenResponseDto exchangeShortCode(String shortCode) {
+        log.info("exchangeShortCode: shortCode={}", shortCode);
+        String accessToken = cacheService.getValue(shortCode);
+        if (accessToken == null) {
+            throw new ShortCodeExpiredException("ShortCode " + shortCode + " expired");
+        }
+        return new TokenResponseDto(accessToken, null);
     }
 
     public JwtUserSubject loginWithUserIdBySystem(Long userId) {

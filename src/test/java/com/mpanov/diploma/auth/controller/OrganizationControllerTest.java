@@ -103,7 +103,6 @@ public class OrganizationControllerTest {
                         .header("Authorization", accessToken)
                         .queryParam("p", "0")
                         .queryParam("q", "5"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(5))
                 .andExpect(jsonPath("$.payload.total").value(12))
@@ -115,7 +114,6 @@ public class OrganizationControllerTest {
                         .header("Authorization", accessToken)
                         .queryParam("p", "1")
                         .queryParam("q", "5"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(5))
                 .andExpect(jsonPath("$.payload.total").value(12))
@@ -127,7 +125,6 @@ public class OrganizationControllerTest {
                         .header("Authorization", accessToken)
                         .queryParam("p", "2")
                         .queryParam("q", "5"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(2))
                 .andExpect(jsonPath("$.payload.total").value(12))
@@ -139,7 +136,6 @@ public class OrganizationControllerTest {
                         .header("Authorization", accessToken)
                         .queryParam("p", "3")
                         .queryParam("q", "5"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(0))
                 .andExpect(jsonPath("$.payload.total").value(12))
@@ -158,7 +154,6 @@ public class OrganizationControllerTest {
                         .queryParam("q", "5")
                         .queryParam("sb", "name")
                         .queryParam("dir", "asc"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(5))
                 .andExpect(jsonPath("$.payload.entries[0].name").value("A"))
@@ -173,7 +168,6 @@ public class OrganizationControllerTest {
                         .queryParam("q", "5")
                         .queryParam("sb", "name")
                         .queryParam("dir", "asc"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(5))
                 .andExpect(jsonPath("$.payload.entries[0].name").value("F"))
@@ -189,7 +183,6 @@ public class OrganizationControllerTest {
                         .queryParam("q", "5")
                         .queryParam("sb", "name")
                         .queryParam("dir", "asc"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(2))
                 .andExpect(jsonPath("$.payload.entries[0].name").value("K"))
@@ -206,7 +199,6 @@ public class OrganizationControllerTest {
                         .queryParam("q", "5")
                         .queryParam("sb", "name")
                         .queryParam("dir", "desc"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(5))
                 .andExpect(jsonPath("$.payload.entries[0].name").value("L"))
@@ -221,7 +213,6 @@ public class OrganizationControllerTest {
                         .queryParam("q", "5")
                         .queryParam("sb", "name")
                         .queryParam("dir", "desc"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(5))
                 .andExpect(jsonPath("$.payload.entries[0].name").value("G"))
@@ -237,7 +228,6 @@ public class OrganizationControllerTest {
                         .queryParam("q", "5")
                         .queryParam("sb", "name")
                         .queryParam("dir", "desc"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(2))
                 .andExpect(jsonPath("$.payload.entries[0].name").value("B"))
@@ -280,7 +270,6 @@ public class OrganizationControllerTest {
                         .header("Authorization", accessToken)
                         .queryParam("sb", "members")
                         .queryParam("dir", "asc"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(4))
                 .andExpect(jsonPath("$.payload.entries[0].membersCount").value(1))
@@ -301,7 +290,6 @@ public class OrganizationControllerTest {
                         .header("Authorization", accessToken)
                         .queryParam("sb", "members")
                         .queryParam("dir", "desc"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(4))
                 .andExpect(jsonPath("$.payload.entries[0].membersCount").value(5))
@@ -333,7 +321,6 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(get(API_USER + "/organizations/" + org0.getSlug())
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.id").value(org0.getId()))
                 .andExpect(jsonPath("$.payload.name").value(org0.getName()))
@@ -347,7 +334,6 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(get(API_USER + "/organizations/" + org1.getSlug())
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.id").value(org1.getId()))
                 .andExpect(jsonPath("$.payload.name").value(org1.getName()))
@@ -361,7 +347,6 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(get(API_USER + "/organizations/" + org2.getSlug())
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.id").value(org2.getId()))
                 .andExpect(jsonPath("$.payload.name").value(org2.getName()))
@@ -393,7 +378,6 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(get(API_USER + "/organizations/" + org1.getSlug())
                         .header("Authorization", user2AccessToken))
-                .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errors.length()").value(1))
                 .andExpect(jsonPath("$.errors[0].errorMessage").value("User " + userData2.middle.getId() + " does not have access to organization " + org1.getSlug()))
@@ -423,7 +407,6 @@ public class OrganizationControllerTest {
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.payload.accessToken").isString())
                 .andExpect(jsonPath("$.payload.refreshToken").isString())
@@ -431,7 +414,6 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(get(API_USER + "/organizations/" + dto.getSlug())
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errors.length()").value(1))
                 .andExpect(jsonPath("$.errors[0].errorMessage").value(
@@ -448,7 +430,6 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(get(API_USER + "/organizations/" + dto.getSlug())
                         .header("Authorization", newAccessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.id").isNumber())
                 .andExpect(jsonPath("$.payload.name").value(dto.getName()))
@@ -485,7 +466,6 @@ public class OrganizationControllerTest {
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body1))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.id").value(organization.getId()))
                 .andExpect(jsonPath("$.payload.name").value(dto1.getNewName()))
@@ -505,7 +485,6 @@ public class OrganizationControllerTest {
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body2))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.id").value(organization.getId()))
                 .andExpect(jsonPath("$.payload.name").value(dto1.getNewName()))
@@ -533,7 +512,6 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(get(API_USER + "/organizations/" + organization.getSlug())
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.id").value(organization.getId()))
                 .andExpect(jsonPath("$.payload.avatarUrl").isEmpty());
@@ -547,14 +525,12 @@ public class OrganizationControllerTest {
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.id").value(organization.getId()))
                 .andExpect(jsonPath("$.payload.avatarUrl").isString());
 
         mockMvc.perform(get(API_USER + "/organizations/" + organization.getSlug())
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.id").value(organization.getId()))
                 .andExpect(jsonPath("$.payload.avatarUrl").isString());
@@ -566,14 +542,12 @@ public class OrganizationControllerTest {
          */
         mockMvc.perform(delete(API_USER + "/organizations/" + organization.getSlug() + "/avatar")
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.id").value(organization.getId()))
                 .andExpect(jsonPath("$.payload.avatarUrl").isEmpty());
 
         mockMvc.perform(get(API_USER + "/organizations/" + organization.getSlug())
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.id").value(organization.getId()))
                 .andExpect(jsonPath("$.payload.avatarUrl").isEmpty());
@@ -596,48 +570,41 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(get(API_USER + "/organizations")
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(6));
 
         mockMvc.perform(delete(API_USER + "/organizations/" + org1.getSlug())
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.accessToken").isString())
                 .andExpect(jsonPath("$.payload.refreshToken").isString());
 
         mockMvc.perform(delete(API_USER + "/organizations/" + org2.getSlug())
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.accessToken").isString())
                 .andExpect(jsonPath("$.payload.refreshToken").isString());
 
         mockMvc.perform(delete(API_USER + "/organizations/" + org3.getSlug())
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.accessToken").isString())
                 .andExpect(jsonPath("$.payload.refreshToken").isString());
 
         mockMvc.perform(delete(API_USER + "/organizations/" + org4.getSlug())
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.accessToken").isString())
                 .andExpect(jsonPath("$.payload.refreshToken").isString());
 
         mockMvc.perform(delete(API_USER + "/organizations/" + org5.getSlug())
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.accessToken").isString())
                 .andExpect(jsonPath("$.payload.refreshToken").isString());
 
         mockMvc.perform(get(API_USER + "/organizations")
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(1));
     }
@@ -657,7 +624,6 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(delete(API_USER + "/organizations/" + organization.getSlug())
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.errors[0].errorMessage").value("Cannot remove a permanent organization " + organization.getSlug()))
                 .andExpect(jsonPath("$.errors[0].errorType").value(ServiceErrorType.ORGANIZATION_ACTION_NOT_ALLOWED.toString()))
@@ -697,7 +663,6 @@ public class OrganizationControllerTest {
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateBody))
-                .andDo(print())
                 .andExpect(status().isOk());
 
         UpdateOrganizationAvatarDto avatarDto = new UpdateOrganizationAvatarDto(
@@ -709,17 +674,14 @@ public class OrganizationControllerTest {
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(avatarBody))
-                .andDo(print())
                 .andExpect(status().isOk());
 
         mockMvc.perform(delete(API_USER + "/organizations/" + organization.getSlug() + "/avatar")
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isOk());
 
         mockMvc.perform(delete(API_USER + "/organizations/" + organization.getSlug())
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errors[0].errorMessage")
                         .value("User " + memberUserData.middle.getId() + " does not have required permission FULL_ACCESS for organization " + organization.getSlug()))
@@ -761,7 +723,6 @@ public class OrganizationControllerTest {
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateBody))
-                .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errors[0].errorMessage")
                         .value("User " + memberUserData.middle.getId() + " does not have required permission MANAGE_ORGANIZATION for organization " + organization.getSlug()))
@@ -777,7 +738,6 @@ public class OrganizationControllerTest {
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(avatarBody))
-                .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errors[0].errorMessage")
                         .value("User " + memberUserData.middle.getId() + " does not have required permission MANAGE_ORGANIZATION for organization " + organization.getSlug()))
@@ -786,7 +746,6 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(delete(API_USER + "/organizations/" + organization.getSlug() + "/avatar")
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errors[0].errorMessage")
                         .value("User " + memberUserData.middle.getId() + " does not have required permission MANAGE_ORGANIZATION for organization " + organization.getSlug()))
@@ -795,7 +754,6 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(delete(API_USER + "/organizations/" + organization.getSlug())
                         .header("Authorization", accessToken))
-                .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errors[0].errorMessage")
                         .value("User " + memberUserData.middle.getId() + " does not have required permission FULL_ACCESS for organization " + organization.getSlug()))

@@ -8,6 +8,12 @@ services:
     ports:
       - '5432:5432'
 
+  auth-redis:
+    container_name: auth-redis
+    image: redis:8.0-rc1-alpine
+    ports:
+      - '6379:6379'
+
   auth-service:
     container_name: auth-service
     image: 533267200006.dkr.ecr.eu-central-1.amazonaws.com/diploma-auth-service:dev.latest

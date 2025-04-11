@@ -1,5 +1,6 @@
 package com.mpanov.diploma.auth.controller;
 
+import com.mpanov.diploma.auth.dto.user.ShortCodeResponseDto;
 import com.mpanov.diploma.auth.dto.user.UpdateUserInfoByAdminDto;
 import com.mpanov.diploma.auth.dto.user.UpdateUserProfilePictureDto;
 import com.mpanov.diploma.auth.dto.user.UserAdminInfoDto;
@@ -22,6 +23,14 @@ public class ServiceUserAdminController {
     private final ServiceUserLogic serviceUserLogic;
 
     private final Mapper mapper;
+
+    @GetMapping("/login-as-user")
+    public AbstractResponseDto<ShortCodeResponseDto> loginAsUserByAdmin(@PathVariable Long userId) {
+        log.info("Login as user by admin: userId={}", userId);
+        String shortCode = serviceUserLogic.loginAsUserByAdmin(userId);
+        ShortCodeResponseDto rv = new ShortCodeResponseDto(shortCode);
+        return new AbstractResponseDto<>(rv);
+    }
 
     @GetMapping("/info")
     public AbstractResponseDto<UserAdminInfoDto> getUserAdminInfo(@PathVariable Long userId) {

@@ -26,6 +26,15 @@ public class ServiceUserController {
 
     private final Mapper mapper;
 
+    @GetMapping(API_PUBLIC + "/users/exchange-short-code/{shortCode}")
+    public AbstractResponseDto<TokenResponseDto> exchangeShortCode(
+            @PathVariable String shortCode
+    ) {
+        log.info("Received GET /public/users/exchange-short-code/{}", shortCode);
+        TokenResponseDto rv = serviceUserLogic.exchangeShortCode(shortCode);
+        return new AbstractResponseDto<>(rv);
+    }
+
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(API_PUBLIC + "/users/signup")
     public AbstractResponseDto<TokenResponseDto> signup(@RequestBody UserSignupDto dto) {

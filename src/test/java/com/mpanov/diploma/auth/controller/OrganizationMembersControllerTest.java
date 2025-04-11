@@ -83,7 +83,6 @@ public class OrganizationMembersControllerTest {
                         .header("Authorization", accessToken)
                         .queryParam("p", "0")
                         .queryParam("q", "5"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(5));
 
@@ -91,7 +90,6 @@ public class OrganizationMembersControllerTest {
                         .header("Authorization", accessToken)
                         .queryParam("p", "1")
                         .queryParam("q", "5"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(5));
 
@@ -99,7 +97,6 @@ public class OrganizationMembersControllerTest {
                         .header("Authorization", accessToken)
                         .queryParam("p", "2")
                         .queryParam("q", "5"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(3));
 
@@ -107,7 +104,6 @@ public class OrganizationMembersControllerTest {
                         .header("Authorization", accessToken)
                         .queryParam("p", "3")
                         .queryParam("q", "5"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(0));
     }
@@ -135,7 +131,6 @@ public class OrganizationMembersControllerTest {
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.message").value("SUCCESS"));
     }
@@ -253,7 +248,6 @@ public class OrganizationMembersControllerTest {
                         .header("Authorization", ownerAccessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.message").value("SUCCESS"));
     }
@@ -624,7 +618,6 @@ public class OrganizationMembersControllerTest {
                         .header("Authorization", ownerAccessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.message").value("SUCCESS"));
     }
@@ -644,7 +637,6 @@ public class OrganizationMembersControllerTest {
 
         mockMvc.perform(delete(API_USER + "/organizations/" + orgSlug + "/members/" + memberId)
                         .header("Authorization", ownerAccessToken))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.message").value("SUCCESS"));
     }
