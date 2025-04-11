@@ -48,16 +48,9 @@ jobs:
           verbose: false
           arch: amd64
 
-      - name: Login to CodeArtifact
-        run: |
-          aws --version
-          CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain mpanov --domain-owner 533267200006 --query authorizationToken --output text)
-          echo "CODEARTIFACT_AUTH_TOKEN=${CODEARTIFACT_AUTH_TOKEN}" >> $GITHUB_ENV
-
       - name: Prepare settings.xml with token
         run: |
           cp docker/ci/settings.xml.template ./
-          sed -e "s|\${env.CODEARTIFACT_AUTH_TOKEN}|${CODEARTIFACT_AUTH_TOKEN}|g" settings.xml.template > settings.xml
           cat settings.xml
 
       - name: Clear project
@@ -88,6 +81,11 @@ jobs:
       - name: Checkout Branch
         uses: actions/checkout@v3
 
+      - name: Prepare settings.xml with token
+        run: |
+          cp docker/ci/settings.xml.template ./
+          cat settings.xml
+
       - name: Build image
         run: docker build -t diploma-auth-service -f ./docker/ecs/Dockerfile .
 
@@ -113,6 +111,11 @@ jobs:
     steps:
       - name: Checkout Branch
         uses: actions/checkout@v3
+
+      - name: Prepare settings.xml with token
+        run: |
+          cp docker/ci/settings.xml.template ./
+          cat settings.xml
 
       - name: Build image
         run: docker build -t diploma-auth-service -f ./docker/ecs/Dockerfile .
