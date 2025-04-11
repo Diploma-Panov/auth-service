@@ -48,9 +48,9 @@ jobs:
           verbose: false
           arch: amd64
 
-      - name: Prepare settings.xml with token
+      - name: Prepare settings.xml
         run: |
-          cp docker/ci/settings.xml.template ./
+          cp docker/ci/settings.xml.template ./settings.xml
           cat settings.xml
 
       - name: Clear project
@@ -81,9 +81,9 @@ jobs:
       - name: Checkout Branch
         uses: actions/checkout@v3
 
-      - name: Prepare settings.xml with token
+      - name: Prepare settings.xml
         run: |
-          cp docker/ci/settings.xml.template ./
+          cp docker/ci/settings.xml.template ./settings.xml
           cat settings.xml
 
       - name: Build image
@@ -112,9 +112,9 @@ jobs:
       - name: Checkout Branch
         uses: actions/checkout@v3
 
-      - name: Prepare settings.xml with token
+      - name: Prepare settings.xml
         run: |
-          cp docker/ci/settings.xml.template ./
+          cp docker/ci/settings.xml.template ./settings.xml
           cat settings.xml
 
       - name: Build image
