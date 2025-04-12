@@ -2,8 +2,8 @@
     <servers>
         <server>
             <id>codeartifact</id>
-            <username>${{ secrets.AWS_ACCESS_KEY_ID }}</username>
-            <password>${{ secrets.AWS_SECRET_ACCESS_KEY }}</password>
+            <username>$AWS_ACCESS_KEY_ID</username>
+            <password>$AWS_SECRET_ACCESS_KEY</password>
         </server>
     </servers>
     <profiles>
