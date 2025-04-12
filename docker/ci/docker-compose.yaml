@@ -20,9 +20,9 @@ services:
       context: ../..
       dockerfile: ./docker/ecs/Dockerfile
       args:
-        - AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-        - AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        - AWS_REGION=${{ secrets.AWS_DEFAULT_REGION }}
+        - AWS_ACCESS_KEY_ID=$$AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY=$$AWS_SECRET_ACCESS_KEY
+        - AWS_REGION=$$AWS_DEFAULT_REGION
     environment:
       SPRING_PROFILES_ACTIVE: 'ci'
     ports:
