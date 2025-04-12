@@ -6,6 +6,9 @@ import com.mpanov.diploma.auth.dto.organization.members.OrganizationMemberDto;
 import com.mpanov.diploma.auth.dto.organization.members.OrganizationMembersListDto;
 import com.mpanov.diploma.auth.dto.user.UserAdminInfoDto;
 import com.mpanov.diploma.auth.dto.user.UserInfoDto;
+import com.mpanov.diploma.auth.kafka.dto.KafkaOrganizationMembersUpdateDto;
+import com.mpanov.diploma.auth.kafka.dto.KafkaOrganizationUpdateDto;
+import com.mpanov.diploma.auth.kafka.dto.KafkaUserUpdateDto;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.OrganizationMember;
 import com.mpanov.diploma.auth.model.ServiceUser;
@@ -136,6 +139,50 @@ public class Mapper {
                 .lastLoginDate(user.getLastLoginDate())
                 .registrationDate(user.getRegistrationDate())
                 .build();
+    }
+
+    public KafkaUserUpdateDto toKafkaUserUpdateDto(ServiceUser user) {
+        return KafkaUserUpdateDto.builder()
+                .id(user.getId())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .email(user.getEmail())
+                .organizationsCreatedByUser(this.toKafkaOrganizationUpdateDtos(user))
+                .members(this.toKafkaOrganizationMembersUpdateDtos(user))
+                .build();
+    }
+
+    public List<KafkaOrganizationUpdateDto> toKafkaOrganizationUpdateDtos(ServiceUser user) {
+        List<KafkaOrganizationUpdateDto> rv = new ArrayList<>();
+        for (Organization organization : user.getOrganizations()) {
+            if (Objects.equals(organization.getCreatorUser().getId(), user.getId())) {
+                rv.add(
+                        KafkaOrganizationUpdateDto.builder()
+                                .id(organization.getId())
+                                .name(organization.getName())
+                                .slug(organization.getSlug())
+                                .siteUrl(organization.getSiteUrl())
+                                .description(organization.getDescription())
+                                .build()
+                );
+            }
+        }
+        return rv;
+    }
+
+    public List<KafkaOrganizationMembersUpdateDto> toKafkaOrganizationMembersUpdateDtos(ServiceUser user) {
+        List<KafkaOrganizationMembersUpdateDto> rv = new ArrayList<>();
+        for (OrganizationMember member : user.getOrganizationMembers()) {
+            rv.add(
+                    KafkaOrganizationMembersUpdateDto.builder()
+                            .id(member.getId())
+                            .organizationId(member.getOrganization().getId())
+                            .displayFirstname(member.getDisplayFirstname())
+                            .displayLastname(member.getDisplayLastname())
+                            .build()
+            );
+        }
+        return rv;
     }
 
 }

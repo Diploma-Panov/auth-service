@@ -4,6 +4,7 @@ import com.mpanov.diploma.auth.dao.OrganizationDao;
 import com.mpanov.diploma.auth.dto.organization.CreateOrganizationDto;
 import com.mpanov.diploma.auth.dto.organization.UpdateOrganizationInfoDto;
 import com.mpanov.diploma.auth.exception.OrganizationActionNotAllowed;
+import com.mpanov.diploma.auth.kafka.UserUpdatesKafkaProducer;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.OrganizationMember;
 import com.mpanov.diploma.auth.model.ServiceUser;
@@ -34,6 +35,8 @@ public class OrganizationService {
     private final OrganizationDao organizationDao;
 
     private final ImageService imageService;
+
+    private final UserUpdatesKafkaProducer userUpdatesKafkaProducer;
 
     public List<Organization> getUserOrganizations(ServiceUser user, Pageable pageable) {
         Long userId = user.getId();
@@ -94,6 +97,8 @@ public class OrganizationService {
         byte[] avatarBytes = Base64.getDecoder().decode(dto.getAvatarBase64().getBytes(StandardCharsets.UTF_8));
         String avatarUrl = imageService.saveOrganizationAvatar(avatarBytes, createdOrganizationId);
 
+        userUpdatesKafkaProducer.sendUserUpdateAsync(user.getId());
+
         return organizationDao.updateWithAvatarUrl(createdOrganization, avatarUrl);
     }
 
@@ -124,6 +129,8 @@ public class OrganizationService {
             organization.setSiteUrl(newUrl);
         }
 
+        userUpdatesKafkaProducer.sendUserUpdateAsync(organization.getCreatorUser().getId());
+
         return organizationDao.syncOrganization(organization);
     }
 
@@ -148,6 +155,8 @@ public class OrganizationService {
         if (organization.getType() == OrganizationType.PERMANENT) {
             throw new OrganizationActionNotAllowed("Cannot remove a permanent organization " + slug);
         }
+        Long creatorUserId = organization.getCreatorUser().getId();
         organizationDao.removeOrganization(organization);
+        userUpdatesKafkaProducer.sendUserUpdateAsync(creatorUserId);
     }
 }

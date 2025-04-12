@@ -8,6 +8,7 @@ import com.mpanov.diploma.auth.dto.organization.members.UpdateMemberRolesDto;
 import com.mpanov.diploma.auth.dto.organization.members.UpdateMemberUrlsDto;
 import com.mpanov.diploma.auth.dto.user.UserSignupDto;
 import com.mpanov.diploma.auth.exception.OrganizationActionNotAllowed;
+import com.mpanov.diploma.auth.kafka.UserUpdatesKafkaProducer;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.OrganizationMember;
 import com.mpanov.diploma.auth.model.ServiceUser;
@@ -41,6 +42,8 @@ public class OrganizationMembersService {
     private final ServiceUserLogic serviceUserLogic;
 
     private final PasswordService passwordService;
+
+    private final UserUpdatesKafkaProducer userUpdatesKafkaProducer;
 
     public List<OrganizationMember> getOrganizationMembersBySlug(String slug, Pageable pageable) {
         log.info("getOrganizationMembersBySlug: slug={}, pageable={}", slug, pageable);
@@ -87,7 +90,11 @@ public class OrganizationMembersService {
                 .allowedAllUrls(dto.getAllowedAllUrls())
                 .build();
 
-        return organizationMemberDao.createNewMember(organization, user, member);
+        OrganizationMember newMember = organizationMemberDao.createNewMember(organization, user, member);
+
+        userUpdatesKafkaProducer.sendUserUpdateAsync(newMember.getMemberUser().getId());
+
+        return newMember;
     }
 
     public void updateMemberRoles(String organizationSlug, ServiceUser actorUser, UpdateMemberRolesDto dto, Long memberId) {
@@ -187,7 +194,11 @@ public class OrganizationMembersService {
             throw new OrganizationActionNotAllowed("Organization members cannot remove themselves from organization");
         }
 
+        Long userId = member.getMemberUser().getId();
+
         organizationMemberDao.deleteMember(member);
+
+        userUpdatesKafkaProducer.sendUserUpdateAsync(userId);
     }
 
     private Set<MemberRole> subtractRoles(Set<MemberRole> s1, Set<MemberRole> s2) {

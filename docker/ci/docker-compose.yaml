@@ -14,19 +14,43 @@ services:
     ports:
       - '6379:6379'
 
-  auth-service:
-    container_name: auth-service
-    build:
-      context: ../..
-      dockerfile: ./docker/ecs/Dockerfile
-      args:
-        - AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-        - AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-        - AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
+  auth-zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: auth-zookeeper
     environment:
-      SPRING_PROFILES_ACTIVE: 'ci'
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - '8181:8181'
+      - "2181:2181"
+
+  auth-kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: auth-kafka
     depends_on:
-      - auth-postgres
-      - auth-redis
+      - auth-zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: auth-zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://auth-kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+#  auth-service:
+#    container_name: auth-service
+#    build:
+#      context: ../..
+#      dockerfile: ./docker/ecs/Dockerfile
+#      args:
+#        - AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+#        - AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+#        - AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
+#        - spring.kafka.bootstrap-servers=auth-kafka:9092
+#    environment:
+#      SPRING_PROFILES_ACTIVE: 'ci'
+#    ports:
+#      - '8181:8181'
+#    depends_on:
+#      - auth-postgres
+#      - auth-redis
+#      - auth-kafka

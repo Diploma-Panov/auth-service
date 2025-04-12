@@ -1,12 +1,14 @@
 package com.mpanov.diploma.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mpanov.diploma.auth.dao.ServiceUserDao;
 import com.mpanov.diploma.auth.dto.user.UpdateUserInfoDto;
 import com.mpanov.diploma.auth.dto.user.UpdateUserProfilePictureDto;
 import com.mpanov.diploma.auth.dto.user.UserLoginDto;
 import com.mpanov.diploma.auth.dto.user.UserSignupDto;
 import com.mpanov.diploma.auth.exception.LoginException;
 import com.mpanov.diploma.auth.exception.UserSignupException;
+import com.mpanov.diploma.auth.kafka.dto.KafkaUserUpdateDto;
 import com.mpanov.diploma.auth.model.ServiceUser;
 import com.mpanov.diploma.auth.utils.CommonTestUtils;
 import com.mpanov.diploma.auth.utils.UserTestUtils;
@@ -16,22 +18,42 @@ import com.mpanov.diploma.data.dto.TokenResponseDto;
 import com.mpanov.diploma.data.security.PasswordService;
 import com.mpanov.diploma.utils.RandomUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
+import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
+import java.util.Objects;
+
+import static com.mpanov.diploma.auth.config.KafkaConfig.USER_UPDATES_TOPIC_NAME;
 import static com.mpanov.diploma.auth.config.SecurityConfig.API_PUBLIC;
 import static com.mpanov.diploma.auth.config.SecurityConfig.API_USER;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@EmbeddedKafka(partitions = 1, topics = { USER_UPDATES_TOPIC_NAME })
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ServiceUserControllerTest {
 
     @Autowired
@@ -48,6 +70,12 @@ public class ServiceUserControllerTest {
 
     @Autowired
     private PasswordService passwordService;
+
+    @Autowired
+    private EmbeddedKafkaBroker embeddedKafka;
+
+    @Autowired
+    private ServiceUserDao serviceUserDao;
 
     @Test
     @DisplayName("Should validate sign up password")
@@ -122,6 +150,34 @@ public class ServiceUserControllerTest {
                 .andExpect(jsonPath("$.payloadType").value(TokenResponseDto.class.getSimpleName()))
                 .andExpect(jsonPath("$.payload.accessToken").isString())
                 .andExpect(jsonPath("$.payload.refreshToken").isString());
+
+        ServiceUser newUser = serviceUserDao.getServiceUserByEmailThrowable(email);
+
+        Map<String, Object> consumerProps = KafkaTestUtils.consumerProps(
+                "test-consumer-group", "false", embeddedKafka
+        );
+        consumerProps.put("key.deserializer", StringDeserializer.class);
+        consumerProps.put("value.deserializer", StringDeserializer.class);
+
+        Consumer<String, String> consumer = new DefaultKafkaConsumerFactory<String, String>(consumerProps)
+                .createConsumer();
+        embeddedKafka.consumeFromAnEmbeddedTopic(consumer, USER_UPDATES_TOPIC_NAME);
+
+        ConsumerRecords<String, String> records = KafkaTestUtils.getRecords(consumer, Duration.of(5000, ChronoUnit.MILLIS));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        KafkaUserUpdateDto matchedDto = null;
+
+        for (ConsumerRecord<String, String> record : records) {
+            KafkaUserUpdateDto dto = objectMapper.readValue(record.value(), KafkaUserUpdateDto.class);
+            if (Objects.equals(dto.getId(), newUser.getId())) {
+                matchedDto = dto;
+                break;
+            }
+        }
+
+        assertNotNull(matchedDto);
+        assertEquals(newUser.getId(), matchedDto.getId());
     }
 
     @Test

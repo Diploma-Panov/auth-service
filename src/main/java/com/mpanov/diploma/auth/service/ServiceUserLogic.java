@@ -7,6 +7,7 @@ import com.mpanov.diploma.auth.dto.user.UserSignupDto;
 import com.mpanov.diploma.auth.exception.LoginException;
 import com.mpanov.diploma.auth.exception.ShortCodeExpiredException;
 import com.mpanov.diploma.auth.exception.UserSignupException;
+import com.mpanov.diploma.auth.kafka.UserUpdatesKafkaProducer;
 import com.mpanov.diploma.auth.model.*;
 import com.mpanov.diploma.auth.security.*;
 import com.mpanov.diploma.data.*;
@@ -44,6 +45,8 @@ public class ServiceUserLogic {
     private final ImageService imageService;
 
     private final CacheService cacheService;
+
+    private final UserUpdatesKafkaProducer userUpdatesKafkaProducer;
 
     public ServiceUser getServiceUserByIdThrowable(Long id) {
         return serviceUserDao.getServiceUserByIdThrowable(id);
@@ -116,6 +119,8 @@ public class ServiceUserLogic {
             String profilePictureUrl = imageService.saveUserProfilePicture(user.getId(), profilePictureBytes);
             user = serviceUserDao.updateWithProfilePictureUrl(user, profilePictureUrl);
         }
+
+        userUpdatesKafkaProducer.sendUserUpdateAsync(user.getId());
 
         return user;
     }
@@ -194,7 +199,11 @@ public class ServiceUserLogic {
 
         user.setCompanyName(dto.getNewCompanyName());
 
-        return serviceUserDao.syncInfo(user);
+        ServiceUser updatedUser = serviceUserDao.syncInfo(user);
+
+        userUpdatesKafkaProducer.sendUserUpdateAsync(user.getId());
+
+        return updatedUser;
     }
 
     public ServiceUser updateUserInfoByAdmin(Long userId, UpdateUserInfoByAdminDto dto) {
@@ -220,7 +229,11 @@ public class ServiceUserLogic {
 
         user.setCompanyName(dto.getNewCompanyName());
 
-        return serviceUserDao.syncInfo(user);
+        ServiceUser updatedUser = serviceUserDao.syncInfo(user);
+
+        userUpdatesKafkaProducer.sendUserUpdateAsync(user.getId());
+
+        return updatedUser;
     }
 
     public ServiceUser updateProfilePicture(ServiceUser user, String newProfilePictureBase64) {
