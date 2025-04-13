@@ -163,6 +163,7 @@ public class Mapper {
                                 .slug(organization.getSlug())
                                 .siteUrl(organization.getSiteUrl())
                                 .description(organization.getDescription())
+                                .scope(organization.getOrganizationScope().toString())
                                 .build()
                 );
             }

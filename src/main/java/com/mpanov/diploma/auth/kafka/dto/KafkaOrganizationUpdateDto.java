@@ -17,4 +17,5 @@ public class KafkaOrganizationUpdateDto {
     private String slug;
     private String siteUrl;
     private String description;
+    private String scope;
 }
