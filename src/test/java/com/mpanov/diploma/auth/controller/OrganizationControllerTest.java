@@ -101,6 +101,7 @@ public class OrganizationControllerTest {
          */
         mockMvc.perform(get(API_USER + "/organizations")
                         .header("Authorization", accessToken)
+                        .queryParam("scope", OrganizationScope.SHORTENER_SCOPE.toString())
                         .queryParam("p", "0")
                         .queryParam("q", "5"))
                 .andExpect(status().isOk())
@@ -112,6 +113,7 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(get(API_USER + "/organizations")
                         .header("Authorization", accessToken)
+                        .queryParam("scope", OrganizationScope.SHORTENER_SCOPE.toString())
                         .queryParam("p", "1")
                         .queryParam("q", "5"))
                 .andExpect(status().isOk())
@@ -123,6 +125,7 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(get(API_USER + "/organizations")
                         .header("Authorization", accessToken)
+                        .queryParam("scope", OrganizationScope.SHORTENER_SCOPE.toString())
                         .queryParam("p", "2")
                         .queryParam("q", "5"))
                 .andExpect(status().isOk())
@@ -134,6 +137,7 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(get(API_USER + "/organizations")
                         .header("Authorization", accessToken)
+                        .queryParam("scope", OrganizationScope.SHORTENER_SCOPE.toString())
                         .queryParam("p", "3")
                         .queryParam("q", "5"))
                 .andExpect(status().isOk())
@@ -150,6 +154,7 @@ public class OrganizationControllerTest {
          */
         mockMvc.perform(get(API_USER + "/organizations")
                         .header("Authorization", accessToken)
+                        .queryParam("scope", OrganizationScope.SHORTENER_SCOPE.toString())
                         .queryParam("p", "0")
                         .queryParam("q", "5")
                         .queryParam("sb", "name")
@@ -164,6 +169,7 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(get(API_USER + "/organizations")
                         .header("Authorization", accessToken)
+                        .queryParam("scope", OrganizationScope.SHORTENER_SCOPE.toString())
                         .queryParam("p", "1")
                         .queryParam("q", "5")
                         .queryParam("sb", "name")
@@ -179,6 +185,7 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(get(API_USER + "/organizations")
                         .header("Authorization", accessToken)
+                        .queryParam("scope", OrganizationScope.SHORTENER_SCOPE.toString())
                         .queryParam("p", "2")
                         .queryParam("q", "5")
                         .queryParam("sb", "name")
@@ -195,6 +202,7 @@ public class OrganizationControllerTest {
          */
         mockMvc.perform(get(API_USER + "/organizations")
                         .header("Authorization", accessToken)
+                        .queryParam("scope", OrganizationScope.SHORTENER_SCOPE.toString())
                         .queryParam("p", "0")
                         .queryParam("q", "5")
                         .queryParam("sb", "name")
@@ -209,6 +217,7 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(get(API_USER + "/organizations")
                         .header("Authorization", accessToken)
+                        .queryParam("scope", OrganizationScope.SHORTENER_SCOPE.toString())
                         .queryParam("p", "1")
                         .queryParam("q", "5")
                         .queryParam("sb", "name")
@@ -224,6 +233,7 @@ public class OrganizationControllerTest {
 
         mockMvc.perform(get(API_USER + "/organizations")
                         .header("Authorization", accessToken)
+                        .queryParam("scope", OrganizationScope.SHORTENER_SCOPE.toString())
                         .queryParam("p", "2")
                         .queryParam("q", "5")
                         .queryParam("sb", "name")
@@ -268,6 +278,7 @@ public class OrganizationControllerTest {
          */
         mockMvc.perform(get(API_USER + "/organizations")
                         .header("Authorization", accessToken)
+                        .queryParam("scope", OrganizationScope.SHORTENER_SCOPE.toString())
                         .queryParam("sb", "members")
                         .queryParam("dir", "asc"))
                 .andExpect(status().isOk())
@@ -288,6 +299,7 @@ public class OrganizationControllerTest {
          */
         mockMvc.perform(get(API_USER + "/organizations")
                         .header("Authorization", accessToken)
+                        .queryParam("scope", OrganizationScope.SHORTENER_SCOPE.toString())
                         .queryParam("sb", "members")
                         .queryParam("dir", "desc"))
                 .andExpect(status().isOk())
@@ -511,6 +523,7 @@ public class OrganizationControllerTest {
         String accessToken = userData.getRight().getAccessToken();
 
         mockMvc.perform(get(API_USER + "/organizations/" + organization.getSlug())
+                        .queryParam("scope", OrganizationScope.SHORTENER_SCOPE.toString())
                         .header("Authorization", accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.id").value(organization.getId()))
@@ -547,6 +560,7 @@ public class OrganizationControllerTest {
                 .andExpect(jsonPath("$.payload.avatarUrl").isEmpty());
 
         mockMvc.perform(get(API_USER + "/organizations/" + organization.getSlug())
+                        .queryParam("scope", OrganizationScope.SHORTENER_SCOPE.toString())
                         .header("Authorization", accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.id").value(organization.getId()))
@@ -569,6 +583,7 @@ public class OrganizationControllerTest {
         String accessToken = newTokenPair.getAccessToken();
 
         mockMvc.perform(get(API_USER + "/organizations")
+                        .queryParam("scope", OrganizationScope.SHORTENER_SCOPE.toString())
                         .header("Authorization", accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(6));
@@ -604,6 +619,7 @@ public class OrganizationControllerTest {
                 .andExpect(jsonPath("$.payload.refreshToken").isString());
 
         mockMvc.perform(get(API_USER + "/organizations")
+                        .queryParam("scope", OrganizationScope.SHORTENER_SCOPE.toString())
                         .header("Authorization", accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.payload.entries.length()").value(1));

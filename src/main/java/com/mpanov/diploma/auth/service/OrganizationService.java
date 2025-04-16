@@ -9,6 +9,7 @@ import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.OrganizationMember;
 import com.mpanov.diploma.auth.model.ServiceUser;
 import com.mpanov.diploma.data.MemberRole;
+import com.mpanov.diploma.data.OrganizationScope;
 import com.mpanov.diploma.data.OrganizationType;
 import com.mpanov.diploma.data.exception.DuplicateException;
 import com.mpanov.diploma.data.exception.NotFoundException;
@@ -38,11 +39,11 @@ public class OrganizationService {
 
     private final UserUpdatesKafkaProducer userUpdatesKafkaProducer;
 
-    public List<Organization> getUserOrganizations(ServiceUser user, Pageable pageable) {
+    public List<Organization> getUserOrganizations(ServiceUser user, Pageable pageable, OrganizationScope scope) {
         Long userId = user.getId();
         log.info("getUserOrganizations: for userId={}", userId);
-        Page<Organization> rawData = organizationDao.getAllOrganizationsByMemberUserId(
-                user.getId(), pageable
+        Page<Organization> rawData = organizationDao.getAllOrganizationsByMemberUserIdAndScope(
+                user.getId(), scope, pageable
         );
 
         return rawData.getContent();

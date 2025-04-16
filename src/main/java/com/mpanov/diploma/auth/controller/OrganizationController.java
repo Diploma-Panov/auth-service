@@ -8,6 +8,7 @@ import com.mpanov.diploma.auth.security.JwtPayloadService;
 import com.mpanov.diploma.auth.service.OrganizationService;
 import com.mpanov.diploma.auth.service.ServiceUserLogic;
 import com.mpanov.diploma.data.MemberPermission;
+import com.mpanov.diploma.data.OrganizationScope;
 import com.mpanov.diploma.data.dto.AbstractResponseDto;
 import com.mpanov.diploma.data.dto.TokenResponseDto;
 import com.mpanov.diploma.data.security.JwtUserSubject;
@@ -41,11 +42,12 @@ public class OrganizationController {
 
     @GetMapping
     public AbstractResponseDto<OrganizationsListDto> getUserOrganizations(
-            @RequestParam(name = "p") Optional<Integer> pageOpt,
-            @RequestParam(name = "q") Optional<Integer> quantityOpt,
-            @RequestParam(name = "sb") Optional<String> sortByOpt,
-            @RequestParam(name = "dir") Optional<String> directionOpt
-    ) {
+            @RequestParam(name = "p", required = false) Optional<Integer> pageOpt,
+            @RequestParam(name = "q", required = false) Optional<Integer> quantityOpt,
+            @RequestParam(name = "sb", required = false) Optional<String> sortByOpt,
+            @RequestParam(name = "dir", required = false) Optional<String> directionOpt,
+            @RequestParam(name = "scope") OrganizationScope scope
+            ) {
         Pageable pageable = mapper.toPageable(
                 pageOpt.orElse(0),
                 quantityOpt.orElse(10),
@@ -61,7 +63,7 @@ public class OrganizationController {
         log.info("Requested GET /user/organizations for userId={}", authenticatedUser.getId());
 
         List<Organization> organizations = organizationService.getUserOrganizations(
-                authenticatedUser, pageable
+                authenticatedUser, pageable, scope
         );
         int total = organizationService.countUserOrganizations(authenticatedUser);
 

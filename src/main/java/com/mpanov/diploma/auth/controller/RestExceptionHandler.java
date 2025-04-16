@@ -17,6 +17,7 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -32,6 +33,14 @@ public class RestExceptionHandler {
 
     @Value("${platform.errors.hide-message}")
     private Boolean hideMessage;
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponseDto handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        log.error(e.getMessage(), e);
+        return this.composeErrorResponseDto(e, ServiceErrorType.FORM_VALIDATION_FAILED);
+    }
 
     @ExceptionHandler(UserSignupException.class)
     @ResponseBody

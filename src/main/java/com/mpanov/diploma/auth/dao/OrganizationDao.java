@@ -5,6 +5,7 @@ import com.mpanov.diploma.auth.model.OrganizationMember;
 import com.mpanov.diploma.auth.model.ServiceUser;
 import com.mpanov.diploma.auth.repository.OrganizationMemberRepository;
 import com.mpanov.diploma.auth.repository.OrganizationRepository;
+import com.mpanov.diploma.data.OrganizationScope;
 import com.mpanov.diploma.data.exception.NotFoundException;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -26,11 +27,12 @@ public class OrganizationDao {
 
     private final OrganizationMemberRepository organizationMemberRepository;
 
-    public Page<Organization> getAllOrganizationsByMemberUserId(Long memberUserId, Pageable pageable) {
+    public Page<Organization> getAllOrganizationsByMemberUserIdAndScope(Long memberUserId, OrganizationScope scope, Pageable pageable) {
         Set<Long> organizationIds = organizationMemberRepository
                 .findAllOrganizationIdsByMemberUserId(memberUserId);
-        return organizationRepository.findAllByIds(
+        return organizationRepository.findAllByIdsAndOrganizationScope(
                 organizationIds,
+                scope,
                 pageable
         );
     }
