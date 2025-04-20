@@ -54,6 +54,9 @@ public class UserAuthentication implements Authentication, CredentialsContainer 
                     UserSystemRole.ADMIN::getAuthority
             );
         }
+        if (userSubject.getUserSystemRole() == UserSystemRole.SYSTEM) {
+            return List.of(UserSystemRole.SYSTEM::getAuthority);
+        }
         return List.of(UserSystemRole.USER::getAuthority);
     }
 

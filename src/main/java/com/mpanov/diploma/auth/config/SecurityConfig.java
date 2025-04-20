@@ -4,8 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpanov.diploma.auth.security.*;
 import com.mpanov.diploma.auth.service.ServiceUserLogic;
 import com.mpanov.diploma.data.UserSystemRole;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,13 +27,14 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     public static final String API_VERSION = "/v0";
     public static final String API_PUBLIC = API_VERSION + "/public";
     public static final String API_USER = API_VERSION + "/user";
     public static final String API_ADMIN = API_VERSION + "/admin";
+    public static final String API_SYSTEM = API_VERSION + "/system";
 
     private final ObjectMapper objectMapper;
 
@@ -51,6 +53,9 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     private final ServiceUserLogic serviceUserLogic;
+
+    @Value("${platform.system-token}")
+    private String systemToken;
 
     @Bean
     @SneakyThrows
@@ -87,9 +92,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(API_USER + "/**").hasAnyRole(UserSystemRole.USER.name())
                         .requestMatchers(API_ADMIN + "/**").hasAnyRole(UserSystemRole.ADMIN.name())
+                        .requestMatchers(API_SYSTEM + "/**").hasAnyRole(UserSystemRole.SYSTEM.name())
                         .requestMatchers(API_PUBLIC + "/**", "/error").permitAll()
                         .anyRequest().authenticated()
                 )
+                .addFilterAfter(systemTokenAuthenticationFilter(authenticationManager), ExceptionTranslationFilter.class)
                 .addFilterAfter(accessTokenAuthenticationFilter(authenticationManager), ExceptionTranslationFilter.class)
                 .addFilterAfter(credentialsAuthenticationFilter(authenticationManager), AccessTokenAuthenticationFilter.class)
                 .addFilterBefore(refreshTokenAuthenticationFilter(), CredentialsAuthenticationFilter.class);
@@ -126,6 +133,10 @@ public class SecurityConfig {
                 jwtService,
                 serviceUserLogic
         );
+    }
+
+    private SystemTokenAuthenticationFilter systemTokenAuthenticationFilter(AuthenticationManager authenticationManager) {
+        return new SystemTokenAuthenticationFilter(authenticationManager, systemToken);
     }
 
     private UserAuthenticationSuccessHandler userAuthenticationSuccessHandler() {

@@ -153,6 +153,15 @@ public class ServiceUserLogic {
         return shortCode;
     }
 
+    public TokenResponseDto loginAsUserBySystem(Long userId) {
+        log.info("loginAsUserBySystem: userId={}", userId);
+        ServiceUser user = serviceUserDao.getServiceUserByIdThrowable(userId);
+        JwtUserSubject subject = this.buildSubjectForUser(user, LoginType.USER_LOGIN);
+        TokenResponseDto tokenResponseDto = jwtPayloadService.getTokensForUserSubject(subject);
+        log.debug("loginAsUserBySystem: generated accessToken for userId={}", userId);
+        return tokenResponseDto;
+    }
+
     public TokenResponseDto exchangeShortCode(String shortCode) {
         log.info("exchangeShortCode: shortCode={}", shortCode);
         String accessToken = cacheService.getValue(shortCode);

@@ -21,7 +21,7 @@ public class OrganizationMemberTestUtils {
 
     private final CommonTestUtils commonTestUtils;
 
-    public void inviteMemberInOrganization(Organization organization) {
+    public OrganizationMember inviteMemberInOrganization(Organization organization) {
         InviteMemberDto dto = InviteMemberDto.builder()
                 .firstname(RandomUtils.generateRandomAlphabeticalString(20))
                 .lastname(RandomUtils.generateRandomAlphabeticalString(20))
@@ -30,7 +30,7 @@ public class OrganizationMemberTestUtils {
                 .allowedUrls(new Long[] {1L, 2L, 10L})
                 .roles(Set.of(MemberRole.ORGANIZATION_MEMBER, MemberRole.ORGANIZATION_URLS_MANAGER))
                 .build();
-        organizationMembersService.inviteNewOrganizationMember(organization.getSlug(), dto);
+        return organizationMembersService.inviteNewOrganizationMember(organization.getSlug(), dto);
     }
 
     public ImmutablePair<ServiceUser, OrganizationMember> inviteMemberInOrganization(Organization organization, ServiceUser user, Set<MemberRole> roles) {

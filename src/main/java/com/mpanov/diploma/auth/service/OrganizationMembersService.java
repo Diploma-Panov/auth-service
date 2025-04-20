@@ -16,6 +16,7 @@ import com.mpanov.diploma.data.MemberRole;
 import com.mpanov.diploma.data.exception.NotFoundException;
 import com.mpanov.diploma.data.security.PasswordService;
 import com.mpanov.diploma.utils.EmailUtils;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
 
@@ -148,6 +150,12 @@ public class OrganizationMembersService {
         organizationMemberDao.updateMemberWithNewRoles(member, newRoles);
     }
 
+    public Long updateMemberUrlsBySystem(Long memberId, UpdateMemberUrlsDto dto) {
+        log.info("updateMemberUrlsBySystem: memberId={}, dto={}", memberId, dto);
+        OrganizationMember member = organizationMemberDao.getOrganizationMemberByIdThrowable(memberId);
+        organizationMemberDao.updateMemberWithUrls(member, dto.getNewUrlsIds(), dto.getAllowedAllUrls());
+        return member.getMemberUser().getId();
+    }
 
     public void updateMemberUrls(
             String organizationSlug,
