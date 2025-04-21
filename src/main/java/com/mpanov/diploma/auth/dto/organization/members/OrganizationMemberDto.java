@@ -16,6 +16,8 @@ public class OrganizationMemberDto {
 
     private Long id;
 
+    private Long organizationId;
+
     private String fullName;
 
     private String email;

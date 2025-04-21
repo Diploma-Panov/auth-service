@@ -7,8 +7,10 @@ import com.mpanov.diploma.auth.dto.user.UserSignupDto;
 import com.mpanov.diploma.auth.model.Organization;
 import com.mpanov.diploma.auth.model.OrganizationMember;
 import com.mpanov.diploma.auth.model.ServiceUser;
+import com.mpanov.diploma.auth.utils.CommonTestUtils;
 import com.mpanov.diploma.auth.utils.OrganizationMemberTestUtils;
 import com.mpanov.diploma.auth.utils.UserTestUtils;
+import com.mpanov.diploma.data.MemberRole;
 import com.mpanov.diploma.data.dto.TokenResponseDto;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.junit.jupiter.api.DisplayName;
@@ -49,6 +51,8 @@ public class OrganizationMemberSystemControllerTest {
 
     @Value("${platform.system-token}")
     private String systemToken;
+    @Autowired
+    private CommonTestUtils commonTestUtils;
 
     @Test
     @DisplayName("Should update allowed urls of member by system")
@@ -76,5 +80,25 @@ public class OrganizationMemberSystemControllerTest {
         OrganizationMember updatedMember = organizationMemberDao.getOrganizationMemberByIdThrowable(member.getId());
         assertThat(updatedMember.getMemberUrls()).isEqualTo(new Long[] {999999L});
         assertThat(updatedMember.getAllowedAllUrls()).isEqualTo(false);
+    }
+
+    @Test
+    @DisplayName("Should return list of all members of user")
+    public void shouldListOfAllMembersOfUser() throws Exception {
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> userData = userTestUtils.signupRandomUser();
+        ServiceUser user = userData.getMiddle();
+
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> ownerData1 = userTestUtils.signupRandomUser();
+        ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> ownerData2 = userTestUtils.signupRandomUser();
+
+        organizationMemberTestUtils.inviteMemberInOrganization(ownerData1.middle.getOrganizations().iterator().next(), user, Set.of(MemberRole.ORGANIZATION_MEMBER));
+        organizationMemberTestUtils.inviteMemberInOrganization(ownerData2.middle.getOrganizations().iterator().next(), user, Set.of(MemberRole.ORGANIZATION_MEMBER));
+
+        mockMvc.perform(get(API_SYSTEM + "/members/of-user/" + user.getId())
+                        .header("Authorization", "System " + systemToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.payload.total").value(3))
+                .andExpect(jsonPath("$.payload.entries").isArray());
     }
 }

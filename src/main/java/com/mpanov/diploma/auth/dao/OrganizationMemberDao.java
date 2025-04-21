@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -19,6 +20,10 @@ import java.util.Set;
 public class OrganizationMemberDao {
 
     private final OrganizationMemberRepository organizationMemberRepository;
+
+    public List<OrganizationMember> getOrganizationMembersByUserId(Long userId) {
+        return organizationMemberRepository.findAllByMemberUserId(userId);
+    }
 
     public boolean existsByMemberUserIdAndOrganizationSlug(Long memberUserId, String organizationSlug) {
         return organizationMemberRepository.existsByMemberUserIdAndOrganizationSlug(memberUserId, organizationSlug);

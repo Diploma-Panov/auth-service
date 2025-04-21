@@ -25,7 +25,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
 
@@ -46,6 +45,11 @@ public class OrganizationMembersService {
     private final PasswordService passwordService;
 
     private final UserUpdatesKafkaProducer userUpdatesKafkaProducer;
+
+    public List<OrganizationMember> getOrganizationMembersByUserId(Long userId) {
+        log.info("getOrganizationMembersByUserId: userId={}", userId);
+        return organizationMemberDao.getOrganizationMembersByUserId(userId);
+    }
 
     public List<OrganizationMember> getOrganizationMembersBySlug(String slug, Pageable pageable) {
         log.info("getOrganizationMembersBySlug: slug={}, pageable={}", slug, pageable);

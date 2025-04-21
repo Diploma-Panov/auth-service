@@ -104,6 +104,7 @@ public class Mapper {
 
         return OrganizationMemberDto.builder()
                 .id(member.getId())
+                .organizationId(member.getOrganization().getId())
                 .fullName(fullName)
                 .email(user.getEmail())
                 .roles(member.getRoles())
