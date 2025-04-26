@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -33,6 +34,14 @@ public class RestExceptionHandler {
 
     @Value("${platform.errors.hide-message}")
     private Boolean hideMessage;
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponseDto handleDataIntegrityViolationException(DataIntegrityViolationException e, HttpServletRequest req) {
+        logError(req, e);
+        return this.composeErrorResponseDto(e, ServiceErrorType.ENTITY_ALREADY_EXISTS);
+    }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     @ResponseBody
