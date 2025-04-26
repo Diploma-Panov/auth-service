@@ -20,6 +20,8 @@ public class OrganizationMemberDto {
 
     private String fullName;
 
+    private String pictureUrl;
+
     private String email;
 
     private Set<MemberRole> roles;

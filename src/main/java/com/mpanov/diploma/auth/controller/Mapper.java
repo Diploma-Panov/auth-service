@@ -106,6 +106,7 @@ public class Mapper {
                 .id(member.getId())
                 .organizationId(member.getOrganization().getId())
                 .fullName(fullName)
+                .pictureUrl(member.getMemberUser().getProfilePictureUrl())
                 .email(user.getEmail())
                 .roles(member.getRoles())
                 .allowedUrls(allowedUrls)
