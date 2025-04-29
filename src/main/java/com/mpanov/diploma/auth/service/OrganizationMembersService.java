@@ -16,7 +16,6 @@ import com.mpanov.diploma.data.MemberRole;
 import com.mpanov.diploma.data.exception.NotFoundException;
 import com.mpanov.diploma.data.security.PasswordService;
 import com.mpanov.diploma.utils.EmailUtils;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +45,8 @@ public class OrganizationMembersService {
 
     private final UserUpdatesKafkaProducer userUpdatesKafkaProducer;
 
+    private final EmailService emailService;
+
     public List<OrganizationMember> getOrganizationMembersByUserId(Long userId) {
         log.info("getOrganizationMembersByUserId: userId={}", userId);
         return organizationMemberDao.getOrganizationMembersByUserId(userId);
@@ -62,7 +63,7 @@ public class OrganizationMembersService {
         return organizationMemberDao.countOrganizationMembersBySlug(slug);
     }
 
-    public OrganizationMember inviteNewOrganizationMember(String slug, InviteMemberDto dto) {
+    public OrganizationMember inviteNewOrganizationMember(String slug, InviteMemberDto dto, ServiceUser actorUser) {
         log.info("inviteNewOrganizationMember: slug={}, dto={}", slug, dto);
 
         String normalizedEmail = EmailUtils.normalizeEmail(dto.getEmail());
@@ -73,14 +74,16 @@ public class OrganizationMembersService {
         Optional<ServiceUser> userOpt = serviceUserDao.getServiceUserByEmailOptional(normalizedEmail);
 
         ServiceUser user;
+        String generatedPassword = null;
         if (userOpt.isPresent()) {
             log.info("inviteNewOrganizationMember: successfully found user with email={}", normalizedEmail);
             user = userOpt.get();
         } else {
             log.info("inviteNewOrganizationMember: user with email={} not found, implicitly creating", normalizedEmail);
+            generatedPassword = passwordService.generateCompliantPassword();
             UserSignupDto signupDto = UserSignupDto.builder()
                     .username(normalizedEmail)
-                    .password(passwordService.generateCompliantPassword())
+                    .password(generatedPassword)
                     .firstName(dto.getFirstname())
                     .lastName(dto.getLastname())
                     .registrationScope(organization.getOrganizationScope())
@@ -97,6 +100,19 @@ public class OrganizationMembersService {
                 .build();
 
         OrganizationMember newMember = organizationMemberDao.createNewMember(organization, user, member);
+
+        try {
+            emailService.sendInvitationEmail(
+                    user.getEmail(),
+                    user.getFirstname(),
+                    actorUser.getFirstname(),
+                    newMember.getOrganization().getName(),
+                    user.getEmail(),
+                    generatedPassword
+            );
+        } catch (Exception e) {
+            log.error("Could not send invitation email to user {}", user.getEmail(), e);
+        }
 
         userUpdatesKafkaProducer.sendUserUpdateAsync(newMember.getMemberUser().getId());
 

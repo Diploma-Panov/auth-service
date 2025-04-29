@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invitation</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #050014; font-family: 'Poppins', sans-serif; color: #FFFFFF;">
+<table align="center" width="100%" cellpadding="0" cellspacing="0" style="padding: 30px 0;">
+    <tr>
+        <td align="center">
+            <table width="600" cellpadding="0" cellspacing="0" style="background-color: #050014; padding: 40px; border-radius: 8px; border: 1px solid rgba(191, 0, 255, 0.4); text-align: left;">
+                <tr>
+                    <td style="text-align: center;">
+                        <h1 style="font-family: 'Orbitron', sans-serif; color: #FFFFFF; margin-bottom: 24px; font-size: 28px;">Exciting News!</h1>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-size: 16px; line-height: 1.6; color: #FFFFFF;">
+                        <p><strong style="color: #FFFFFF" th:text="${inviteeName}">Invitee Name</strong>,</p>
+
+                        <p style="color: #FFFFFF">You've been invited by <strong th:text="${inviterName}">Inviter Name</strong> to join
+                            <strong th:text="${organizationName}">Organization Name</strong> on our
+                            <a th:href="${baseUrl}" style="color: #BF00FF; text-decoration: none !important; font-weight: 600;">URL Shortener Dashboard</a>!
+                        </p>
+
+                        <div style="background-color: #050014; border: 1px solid rgba(191, 0, 255, 0.4); border-radius: 6px; padding: 16px; margin-top: 24px; font-size: 14px;">
+                            <p style="margin: 0 0 8px;"><strong>Your credentials:</strong></p>
+                            <p style="margin: 0;"><strong>Email:</strong> <span th:text="${email}" style="color: #BF00FF; text-decoration: none !important; font-weight: 600;">user@example.com</span></p>
+                            <p style="margin: 8px 0 0;" th:if="${password}"><strong>Password:</strong> <span th:text="${password}">password123</span></p>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 32px;">
+                            <a th:href="${baseUrl}" style="background-color: #BF00FF; color: #FFFFFF; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-weight: bold; font-size: 16px;">Go to the Dashboard</a>
+                        </div>
+
+                        <p style="margin-top: 30px; text-align: center; color: #888;">Welcome aboard!</p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

@@ -80,7 +80,7 @@ public class OrganizationMembersController {
 
         actorContext.assertHasAccessToOrganization(slug, MemberPermission.INVITE_MEMBERS);
 
-        organizationMembersService.inviteNewOrganizationMember(slug, dto);
+        organizationMembersService.inviteNewOrganizationMember(slug, dto, actorContext.getAuthenticatedUser());
 
         return new AbstractResponseDto<>(MessageResponseDto.success());
     }
