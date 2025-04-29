@@ -21,7 +21,7 @@ public class OrganizationMemberTestUtils {
 
     private final CommonTestUtils commonTestUtils;
 
-    public OrganizationMember inviteMemberInOrganization(Organization organization) {
+    public OrganizationMember inviteMemberInOrganization(Organization organization, ServiceUser actorUser) {
         InviteMemberDto dto = InviteMemberDto.builder()
                 .firstname(RandomUtils.generateRandomAlphabeticalString(20))
                 .lastname(RandomUtils.generateRandomAlphabeticalString(20))
@@ -30,7 +30,7 @@ public class OrganizationMemberTestUtils {
                 .allowedUrls(new Long[] {1L, 2L, 10L})
                 .roles(Set.of(MemberRole.ORGANIZATION_MEMBER, MemberRole.ORGANIZATION_URLS_MANAGER))
                 .build();
-        return organizationMembersService.inviteNewOrganizationMember(organization.getSlug(), dto);
+        return organizationMembersService.inviteNewOrganizationMember(organization.getSlug(), dto, actorUser);
     }
 
     public ImmutablePair<ServiceUser, OrganizationMember> inviteMemberInOrganization(Organization organization, ServiceUser user, Set<MemberRole> roles) {
@@ -42,7 +42,7 @@ public class OrganizationMemberTestUtils {
                 .allowedUrls(new Long[] {1L, 2L, 10L})
                 .roles(roles)
                 .build();
-        OrganizationMember organizationMember = organizationMembersService.inviteNewOrganizationMember(organization.getSlug(), dto);
+        OrganizationMember organizationMember = organizationMembersService.inviteNewOrganizationMember(organization.getSlug(), dto, user);
         return ImmutablePair.of(organizationMember.getMemberUser(), organizationMember);
     }
 
@@ -55,7 +55,7 @@ public class OrganizationMemberTestUtils {
                 .allowedUrls(urls)
                 .roles(roles)
                 .build();
-        OrganizationMember organizationMember = organizationMembersService.inviteNewOrganizationMember(organization.getSlug(), dto);
+        OrganizationMember organizationMember = organizationMembersService.inviteNewOrganizationMember(organization.getSlug(), dto, user);
         return ImmutablePair.of(organizationMember.getMemberUser(), organizationMember);
     }
 
@@ -67,7 +67,7 @@ public class OrganizationMemberTestUtils {
                 .orElseThrow(() -> new RuntimeException("Member not found for organization " + orgSlug));
     }
 
-    public void inviteMemberWithEmail(String orgSlug, String email) {
+    public void inviteMemberWithEmail(String orgSlug, String email, ServiceUser user) {
         InviteMemberDto inviteDto = InviteMemberDto.builder()
                 .firstname("Test")
                 .lastname("User")
@@ -76,7 +76,7 @@ public class OrganizationMemberTestUtils {
                 .allowedUrls(new Long[]{1L})
                 .roles(Set.of(MemberRole.ORGANIZATION_MEMBER))
                 .build();
-        organizationMembersService.inviteNewOrganizationMember(orgSlug, inviteDto);
+        organizationMembersService.inviteNewOrganizationMember(orgSlug, inviteDto, user);
     }
 
 }

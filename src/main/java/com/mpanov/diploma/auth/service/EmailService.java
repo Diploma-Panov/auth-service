@@ -32,13 +32,16 @@ public class EmailService {
     @Value("${shortener.base-url}")
     private String baseUrl;
 
+    @Value("${platform.is-test}")
+    private boolean isTest;
+
     @Autowired
     private TemplateEngine templateEngine;
 
     private final SendGrid sendGrid;
 
     public EmailService(@Value("${sendgrid.api-key}") String sendGridApiKey) {
-        this.sendGrid = new SendGrid(sendGridApiKey);
+        this.sendGrid = sendGridApiKey == null ? null : new SendGrid(sendGridApiKey);
     }
 
     public void sendInvitationEmail(String toEmail, String inviteeName, String inviterName, String organizationName, String email, String password) {
@@ -68,6 +71,10 @@ public class EmailService {
 
 
     private void sendEmail(String toEmail, String subject, String htmlContent) {
+        if (isTest) {
+            log.info("Skipping sendEmail for {}", toEmail);
+            return;
+        }
         Email from = new Email(fromEmail);
         Email to = new Email(toEmail);
         Content content = new Content("text/html", htmlContent);

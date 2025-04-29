@@ -76,7 +76,7 @@ public class OrganizationMembersControllerTest {
         String orgSlug = organization.getSlug();
 
         for (int i = 0; i < 12; ++i) {
-            organizationMemberTestUtils.inviteMemberInOrganization(organization);
+            organizationMemberTestUtils.inviteMemberInOrganization(organization, owner);
         }
 
         mockMvc.perform(get(API_USER + "/organizations/" + orgSlug + "/members")
@@ -149,9 +149,9 @@ public class OrganizationMembersControllerTest {
         String email3 = commonTestUtils.generateRandomEmail();
         String email4 = owner.getEmail();
 
-        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email1);
-        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email2);
-        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email3);
+        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email1, owner);
+        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email2, owner);
+        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email3, owner);
 
         List<String> expectedEmails = new ArrayList<>();
         expectedEmails.add(email1);
@@ -195,9 +195,9 @@ public class OrganizationMembersControllerTest {
         String email3 = commonTestUtils.generateRandomEmail();
         String email4 = owner.getEmail();
 
-        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email1);
-        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email2);
-        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email3);
+        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email1, owner);
+        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email2, owner);
+        organizationMemberTestUtils.inviteMemberWithEmail(orgSlug, email3, owner);
 
         List<String> expectedEmails = new ArrayList<>();
         expectedEmails.add(email1);

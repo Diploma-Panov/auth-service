@@ -249,6 +249,7 @@ public class OrganizationControllerTest {
     public void shouldListOrganizationsByNumberOfMembers() throws Exception {
         ImmutableTriple<UserSignupDto, ServiceUser, TokenResponseDto> userData =
                 userTestUtils.signupRandomUser();
+        ServiceUser owner = userData.getMiddle();
 
         Organization org0 = userData.middle.getOrganizations()
                 .stream()
@@ -261,15 +262,15 @@ public class OrganizationControllerTest {
         Organization org2 = organizationTestUtils.createTestOrganizationForUser(userData.middle);
         Organization org3 = organizationTestUtils.createTestOrganizationForUser(userData.middle);
 
-        organizationMemberTestUtils.inviteMemberInOrganization(org2);
-        organizationMemberTestUtils.inviteMemberInOrganization(org2);
-        organizationMemberTestUtils.inviteMemberInOrganization(org2);
-        organizationMemberTestUtils.inviteMemberInOrganization(org2);
+        organizationMemberTestUtils.inviteMemberInOrganization(org2, owner);
+        organizationMemberTestUtils.inviteMemberInOrganization(org2, owner);
+        organizationMemberTestUtils.inviteMemberInOrganization(org2, owner);
+        organizationMemberTestUtils.inviteMemberInOrganization(org2, owner);
 
-        organizationMemberTestUtils.inviteMemberInOrganization(org3);
-        organizationMemberTestUtils.inviteMemberInOrganization(org3);
+        organizationMemberTestUtils.inviteMemberInOrganization(org3, owner);
+        organizationMemberTestUtils.inviteMemberInOrganization(org3, owner);
 
-        organizationMemberTestUtils.inviteMemberInOrganization(org1);
+        organizationMemberTestUtils.inviteMemberInOrganization(org1, owner);
 
         /*
          *

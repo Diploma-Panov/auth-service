@@ -62,7 +62,7 @@ public class OrganizationMemberSystemControllerTest {
 
         Organization organization = owner.getOrganizations().iterator().next();
 
-        OrganizationMember member = organizationMemberTestUtils.inviteMemberInOrganization(organization);
+        OrganizationMember member = organizationMemberTestUtils.inviteMemberInOrganization(organization, owner);
 
         UpdateMemberUrlsDto updateUrlsDto = new UpdateMemberUrlsDto();
         updateUrlsDto.setNewUrlsIds(Set.of(999999L));
