@@ -41,7 +41,7 @@ public class EmailService {
     private final SendGrid sendGrid;
 
     public EmailService(@Value("${sendgrid.api-key}") String sendGridApiKey) {
-        this.sendGrid = sendGridApiKey == null ? null : new SendGrid(sendGridApiKey);
+        this.sendGrid = new SendGrid(sendGridApiKey);
     }
 
     public void sendInvitationEmail(String toEmail, String inviteeName, String inviterName, String organizationName, String email, String password) {
