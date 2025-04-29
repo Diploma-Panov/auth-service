@@ -90,7 +90,7 @@ jobs:
             --build-arg AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             --build-arg AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --build-arg AWS_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
-            -t diploma-auth-service -f ./docker/ecs/Dockerfile .
+            -t diploma-auth-service -f ./docker/eks/Dockerfile .
 
       - name: Tag image
         run: docker tag diploma-auth-service:latest 533267200006.dkr.ecr.eu-central-1.amazonaws.com/diploma-auth-service:prod.latest

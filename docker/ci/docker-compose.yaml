@@ -47,7 +47,7 @@ services:
 #    container_name: auth-service
 #    build:
 #      context: ../..
-#      dockerfile: ./docker/ecs/Dockerfile
+#      dockerfile: ./docker/eks/Dockerfile
 #      args:
 #        - AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 #        - AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
