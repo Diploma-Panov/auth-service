@@ -51,7 +51,7 @@ public class AwsSecretsConfig {
     @Bean
     public S3Client s3Client() {
         return S3Client.builder()
-                .region(US_EAST_1)
+                .region(EU_CENTRAL_1)
                 .build();
     }
 }
